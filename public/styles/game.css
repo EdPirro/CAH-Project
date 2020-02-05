@@ -1,0 +1,21 @@
+.main {
+    position: absolute;
+    align-items: center;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: cursive;
+}
+
+.idk {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 25%;
+    text-align: center;
+    font-size: 100px;
+    background-color: blue;
+}
