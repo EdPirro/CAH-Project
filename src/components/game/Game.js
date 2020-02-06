@@ -3,7 +3,6 @@ import Question from "./Question";
 import Hand from "./Hand";
 
 function Game() {
-
     const [selAns, setSelAns] = React.useState([]);
 
     const card = {
@@ -25,8 +24,6 @@ function Game() {
         for(let i = 0; i < selAns.length - 1; i++) newAns.push(selAns[i]);
         setSelAns(newAns);
     }
-    
-    //React.useEffect(() => setSelAns(['Richard Gere holding a banana']), []);
 
     const hand = [];
     hand.push({content: "Yo mamma "});

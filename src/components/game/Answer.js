@@ -1,10 +1,21 @@
 import React from "react";
 
-const cardSize = 174;//px
 
+/**
+ * React Component to render an answer
+ * A answer card will always have a fixed size (174 x 214) and will overlap each other to fit on screen.
+ * Upon hovering it will increase its size and set its content to the Question card's next blank.
+ * @param {*} props 
+ */
 function Answer(props) {
-    const ref = React.useRef();
+    const ref = React.useRef(); // ref to get div's attributes
 
+
+    /**
+     * function to handle onMouseOver event, will reposition and grow the card's display
+     * and send it's content to the props.tryAnswer[0](), a functions that will print the 
+     * content to the Question card's next blank (defined at Game.js)
+     */
     const handleOver = () => {
         ref.current.style.left = `${normalLeft - 10}px`;
         ref.current.style.top  = "-10px";
@@ -12,6 +23,12 @@ function Answer(props) {
         ref.current.classList.add("grown");
         props.tryAnswer[0](props.card.content)
     };
+
+    /**
+     * function to handle onMouseOut event, will reposition and normalize the card's display
+     * and run props.tryAnswer[1](), a functions that will remove the crad's content of the 
+     * Question card's blank (defined at Game.js)
+     */
     const handleOut = () => {
         ref.current.style.left = `${normalLeft}px`;
         ref.current.style.top  = "";
@@ -20,14 +37,15 @@ function Answer(props) {
         props.tryAnswer[1]()
     };
 
-    let normalLeft = 0;
+    let normalLeft = 0; // will be used to correctly reposition the card upon hover
 
-    let style = {};
-    if(props.offset) {
+    // set card's overlap if necessary
+    let style = {}; 
+    if(props.overlap) {
         let left = "";
         if(!props.pos) left = "0px"; 
         else {
-            normalLeft = (cardSize + ((props.pos - 1) * (cardSize - props.offset))) - props.offset;
+            normalLeft = (props.size + ((props.pos - 1) * (props.size - props.overlap))) - props.overlap;
             left = `${normalLeft}px`;
         };
         style = {
@@ -35,10 +53,9 @@ function Answer(props) {
             left:       left,
             zIndex:     -props.pos
         }
-        
     }
 
-
+    // render
     return (
         <div className="answer" onMouseOver={handleOver} onMouseOut={handleOut} style={style} ref={ref}>
             {props.card.content}

@@ -15,12 +15,12 @@
 /* Hand style */
 .hand {
     position: absolute;
-    margin-left: 1%;
-    margin-right: 1%;
-    margin-bottom: 1%;
+    margin-left: 1.5%;
+    margin-right: 1.5%;
+    margin-bottom: 12px;
     bottom: 0px;
-    height: 224px;
-    width: 98%;
+    height: 214px;
+    width: 97%;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
@@ -30,9 +30,10 @@
 
 /* Answer card styles */
 .answer {
-    height: 200px;
+    height: 180px;
     width: 150px;
     padding: 10px;
+    padding-top: 20px;
     border-radius: 20px;
     background-color: white;
     border: solid 2px black;
@@ -40,7 +41,7 @@
 }
 
 .grown {
-    height: 220px;
+    height: 200px;
     width: 170px;
     box-shadow: gray 3px 5px 2px;
 }
