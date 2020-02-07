@@ -5,16 +5,16 @@ import React from "react";
  * @param {*} props 
  */
 function Question(props) {
-    
+
+    let tryAns = props.tryAns; // 
     let key = 0; // to use as key property;
 
     /**
-     * Auxiliar function that creates a span either with a anser in blue or a blank in white
-     * @param {string} ans 
+     * Auxiliar function that creates a span with the argument string inside
+     * @param {string} que 
      */
     const makeAnsDiv = (ans) => {
-        if(ans) return <span key={key++} className="qAnswer">{ans}</span>
-        else return <span key={key++} className="qText">_____</span>
+        return <span key={key++} className="qAnswer">{ans}</span>
     }
 
     /**
@@ -27,17 +27,30 @@ function Question(props) {
 
     // sets up the content
     const content = [];
-    let count = 0; // to correctly iterate in selAns
+    let count = 0; // to correctly iterate in setAns
 
     //if the card is set to begin with a blank it does so
     if(props.card.begin) {
-        content.push(makeAnsDiv(props.selAns[0]));
+        if(props.setAns[0]) content.push(makeAnsDiv(props.setAns[0])); //if there's a answer already set it is used
+        else if(tryAns) {
+            content.push(makeAnsDiv(tryAns));  // if there isn't a set answer and tryAnswer is set it's used
+            tryAns = null;
+        }
+        else content.push(makeQueDiv("_____")); // if neither a try or a set Answer exists a blank is inserted
         count++;
     }
 
     for(let elem of props.card.content) {
         content.push(makeQueDiv(elem)); // creates a span with the Question content
-        if(count < props.card.nAns) content.push(makeAnsDiv(props.selAns[count++])); // if it should have a answer slot a span is created
+        if(count < props.card.nAns) {
+            if(props.setAns[count]) content.push(makeAnsDiv(props.setAns[count])); //if there's a answer already set it is used
+            else if(tryAns) {
+                content.push(makeAnsDiv(tryAns));  // if there isn't a set answer and tryAnswer is set it's used
+                tryAns = null;
+            }
+            else content.push(makeQueDiv("_____")); // if neither a try or a set Answer exists a blank is inserted
+            count++;
+        }
     }
 
     // render
@@ -45,8 +58,8 @@ function Question(props) {
         <>
             <div className="question">
                 <p>{content}</p>
-                {props.card.nAns === 2 && 
-                    <div className="pickTwo">2</div>
+                {props.card.nAns > 1 && 
+                    <div className="pickTwo">{props.card.nAns}</div>
                 }
             </div>
             

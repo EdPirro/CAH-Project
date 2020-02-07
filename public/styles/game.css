@@ -12,6 +12,35 @@
     z-index: -1000;
 }
 
+/* Menu style*/
+.menu {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 30%;
+    height: 70%;
+    background-color: blue;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pCont {
+    width: 100%;
+    height: 60%;
+    border: solid 2px black;
+
+}
+
+.pStat{
+    background-color: green;
+    width: 20px;
+    height: 20px;
+
+}
+
 /* Hand style */
 .hand {
     position: absolute;
@@ -38,6 +67,14 @@
     background-color: white;
     border: solid 2px black;
     transition: all 0.1s;
+}
+
+.cover {
+    height: 214px;
+    width: 174px;
+    border-radius: 20px;
+    background-color: darkgray;
+    opacity: 0.8;
 }
 
 .grown {

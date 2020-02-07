@@ -1,28 +1,62 @@
 import React from "react";
 import Question from "./Question";
 import Hand from "./Hand";
+import Menu from "./Menu"
 
 function Game() {
-    const [selAns, setSelAns] = React.useState([]);
+    const [setAns, setSetAns] = React.useState([]);
+    const [tryAns, setTryAns] = React.useState(null);
+    let full = false;
 
     const card = {
-        nAns: 1, 
-        content: [" is the most arousing thing in the world."], 
+        nAns: 3, 
+        content: [" is the most arousing thing in the world ", "aaaa ", "."], 
         begin: true
     };
 
-    const tryAnswer = content => {
-        if(selAns.length >= card.nAns) return;
+    const setAnswer = content => {
+        if(full) return;
         const newAns = [];
-        for(let elem of selAns) newAns.push(elem);
-        newAns.push(content);
-        setSelAns(newAns);
+        let set = false;
+        for(let i = 0; i < card.nAns; i++) {
+            newAns[i] = setAns[i];
+            if(!set && !setAns[i]) {
+                newAns[i] = content;
+                set = true;
+                if(i === card.nAns - 1) full = true;
+            }
+        }
+        if(set) {
+            setSetAns(newAns)
+            return true;
+        };
+    }
+
+    const unSetAnswer = content => {
+        const newAns = [];
+        let taken = false;
+        for(let i = 0; i < card.nAns; i++) {
+            newAns[i] = setAns[i];
+            if(!taken && setAns[i] === content) {
+                newAns[i] = undefined;
+                taken = true;
+            }
+        }
+        if(taken) setSetAns(newAns);
+        full = false;
+    }
+
+    const tryAnswer = content => {
+        if((() => {
+            for(let i = 0; i < card.nAns; i++) if(!setAns[i]) return false;
+            return true;
+        })()) return;
+
+        setTryAns(content);
     };
 
     const unTryAnswer = () => {
-        const newAns = [];
-        for(let i = 0; i < selAns.length - 1; i++) newAns.push(selAns[i]);
-        setSelAns(newAns);
+        setTryAns(null);
     }
 
     const hand = [];
@@ -41,8 +75,9 @@ function Game() {
         <>
             <link rel="stylesheet" type="text/css" href="styles/game.css" />
             <div className="main">
-                <Question card={card} selAns={selAns} />
-                <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} />
+                <Question card={card} setAns={setAns} tryAns={tryAns} />
+                <Menu />
+                <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
             </div>
         </>
     );

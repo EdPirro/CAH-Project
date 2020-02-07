@@ -36,7 +36,16 @@ function Hand(props) {
 
     // creates a Answer component for each card in hand
     const content = props.cards.map((card, id) => 
-        <Answer card={card} key={id} pos={id} handSize={handSize} overlap={overlap} tryAnswer={props.tryAnswer} size={cardSize} /> 
+        <Answer 
+            card={card} 
+            key={id} 
+            pos={id} 
+            handSize={handSize} 
+            overlap={overlap} 
+            tryAnswer={props.tryAnswer} 
+            setAnswer={props.setAnswer} 
+            size={cardSize} 
+        /> 
     ); 
 
     // render

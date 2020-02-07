@@ -8,8 +8,22 @@ import React from "react";
  * @param {*} props 
  */
 function Answer(props) {
+    const [clicked, setClicked] = React.useState(false);
     const ref = React.useRef(); // ref to get div's attributes
 
+
+    const handleClick = () => {
+        if(props.setAnswer[0](props.card.content)){
+            handleOut();
+            setClicked(true);
+        }
+    }
+
+    const handleUnClick = () => {
+        props.setAnswer[1](props.card.content);
+        setClicked(false);
+        handleOver();
+    }
 
     /**
      * function to handle onMouseOver event, will reposition and grow the card's display
@@ -57,9 +71,12 @@ function Answer(props) {
 
     // render
     return (
-        <div className="answer" onMouseOver={handleOver} onMouseOut={handleOut} style={style} ref={ref}>
-            {props.card.content}
-        </div>
+        <>
+            <div className="answer" onMouseOver={handleOver} onMouseOut={handleOut} onClick={handleClick} style={style} ref={ref}>
+                {props.card.content}
+            </div>
+            {clicked && <div className="cover" style={style} onClick={handleUnClick}></div>}
+        </>
     );
 }
 
