@@ -12,17 +12,21 @@ function Answer(props) {
     const ref = React.useRef(); // ref to get div's attributes
 
 
-    const handleClick = () => {
+    const handleClick = e => {
+        if(e.defaultPrevented ||!props.setAnswer) return;
         if(props.setAnswer[0](props.card.content)){
             handleOut();
             setClicked(true);
         }
+        e.preventDefault();
     }
 
-    const handleUnClick = () => {
+    const handleUnClick = e => {
+        if(e.defaultPrevented || !props.setAnswer) return;
         props.setAnswer[1](props.card.content);
         setClicked(false);
         handleOver();
+        e.preventDefault();
     }
 
     /**
@@ -34,10 +38,9 @@ function Answer(props) {
         ref.current.style.left = `${normalLeft - 10}px`;
         ref.current.style.top  = "-10px";
         ref.current.style.zIndex = 1;
-        ref.current.style.height = "200px";
-        ref.current.style.width = "170px";
-        // ref.current.classList.add("grown");
-        props.tryAnswer[0](props.card.content)
+        ref.current.style.height = "220px";
+        ref.current.style.width = "190px";
+        if(props.tryAnswer) props.tryAnswer[0](props.card.content)
     };
 
     /**
@@ -49,9 +52,9 @@ function Answer(props) {
         ref.current.style.left = `${normalLeft}px`;
         ref.current.style.top  = "";
         ref.current.style.zIndex = -props.pos;
-        ref.current.style.height = "180px";
-        ref.current.style.width = "150px";
-        props.tryAnswer[1]()
+        ref.current.style.height = "200px";
+        ref.current.style.width = "170px";
+        if(props.tryAnswer) props.tryAnswer[1]()
     };
 
     let normalLeft = 0; // will be used to correctly reposition the card upon hover

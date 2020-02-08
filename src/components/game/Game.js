@@ -1,13 +1,15 @@
 import React from "react";
 import Question from "./Question";
 import Hand from "./Hand";
-import Menu from "./Menu"
+import Menu from "./Menu";
+import SubmittedAnswers from "./SubmittedAnswers";
 
 function Game() {
 
-    const [setAns, setSetAns] = React.useState([]);
-    const [tryAns, setTryAns] = React.useState(null);
-    const [time, setTime] = React.useState(60);
+    const [setAns, setSetAns] = React.useState([]); // set(ted) answers
+    const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
+    const [time, setTime] = React.useState(5); // time (s) to play
+    const [czar, setCzar] = React.useState(false);
     const inter = React.useRef(null);
     let full = false;
 
@@ -15,14 +17,29 @@ function Game() {
     React.useEffect(() => {inter.current = setInterval(() => setTime(t => t - 1), 1000)}, []) // empty dependency array -> only once
     // setTime(t => t - 1) will allow us not to put time in the dependency array and will always update as a funtion of the last time value
     
-    if(!time) clearInterval(inter.current);
+    if(!time) {
+        clearInterval(inter.current)
+    };
 
-    const card = {
+    const card = { // question card
         nAns: 3, 
         content: [" is the most arousing thing in the world ", "aaaa ", "."], 
         begin: true
     };
 
+    const revealAnswer = ans => {
+        const newAns =[]
+        for(const elem of ans) newAns.push(elem);
+        setSetAns(newAns);
+    }
+
+    const hideAnswer = () => {
+        const newAns = [];
+        newAns[card.nAns - 1] =  undefined;
+        setSetAns([]);
+    }
+
+    // Functions to add or remove a card to/from tryAns
     const setAnswer = content => {
         if(full) return;
         const newAns = [];
@@ -55,6 +72,7 @@ function Game() {
         full = false;
     }
 
+    // Functions to add or remove a card to/from setAns
     const tryAnswer = content => {
         if((() => {
             for(let i = 0; i < card.nAns; i++) if(!setAns[i]) return false;
@@ -68,7 +86,7 @@ function Game() {
         setTryAns(null);
     }
 
-    const hand = [];
+    const hand = []; // list of cards (the player's hand)
     hand.push({content: "Yo mamma "});
     hand.push({content: "Richard Gere holding a banana "});
     hand.push({content: "A very clever monkey "});
@@ -83,10 +101,27 @@ function Game() {
     return (
         <>
             <link rel="stylesheet" type="text/css" href="styles/game.css" />
-            <div className="main">
-                <Question card={card} setAns={setAns} tryAns={tryAns} />
-                <Menu time={time}/>
-                <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
+            <div className="playerMain">
+                <button style={{position: "absolute", top: "0px", left: "0px", zIndex: 1}} onClick={() => setCzar(!czar)}>Toggle</button>
+                {czar ? 
+                    <>
+                        <div className="czarQCont">
+                            <Question card={card} setAns={setAns} tryAns={tryAns} divClass="czarQ" />
+                        </div>
+                        <Menu ></Menu>
+                        <SubmittedAnswers 
+                            answers={[["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"]]} 
+                            revealAnswer={revealAnswer} 
+                            hideAnswer={hideAnswer}
+                        />
+                    </> : 
+                    <>
+                        
+                        <Question card={card} setAns={setAns} tryAns={tryAns} divClass="playerQ"/>
+                        <Menu time={time}/>
+                        <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
+                    </>
+                }
             </div>
         </>
     );

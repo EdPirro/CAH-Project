@@ -1,8 +1,8 @@
 import React from "react";
 import Answer from "./Answer";
 
-// define fixed card Size (174 = 150px(width) + 20(padding) + 4(border))
-const cardSize = 174;//px
+// define fixed card Size (194 = 170px(width) + 20(padding) + 4(border))
+const cardSize = 194;//px
 
 /**
  * React Component responsable for rendering the player's hand, that it every Answer Card he/she has.

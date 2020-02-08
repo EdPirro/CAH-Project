@@ -56,7 +56,7 @@ function Question(props) {
     // render
     return (
         <>
-            <div className="question">
+            <div className={`question ${props.divClass}`}>
                 <p>{content}</p>
                 {props.card.nAns > 1 && 
                     <div className="pickTwo">{props.card.nAns}</div>

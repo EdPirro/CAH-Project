@@ -1,12 +1,13 @@
-.main {
+.playerMain {
     position: absolute;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: center;
     left: 0px;
     top: 0px;
     width: 100%;
     height: 100vh;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     font-family: cursive;
     background-color: lightgray;
     z-index: -1000;
@@ -29,6 +30,7 @@
     justify-content: center;
     user-select: none;
     cursor: pointer;
+    z-index: 1;
     font-size: xx-large;
 
     background-color: white;
@@ -49,6 +51,7 @@
     justify-content: flex-start;
     align-items: center;
     margin: 10px;
+    z-index: 1;
 
     background-color: white;
     border: solid 2px black;
@@ -89,6 +92,7 @@
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: black white;
+    padding-bottom: 2vmin;
     
 }
 
@@ -112,6 +116,8 @@
 .tCont {
     width: 100%;
     height: 16vh;
+    min-height: fit-content;
+    min-width: fit-content;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -129,7 +135,7 @@
     margin-bottom: 12px;
     bottom: 0px;
     left: 0px;
-    height: 214px;
+    height: 234px;
     width: 97%;
     display: flex;
     flex-direction: row;
@@ -140,8 +146,8 @@
 
 /* Answer card styles */
 .answer {
-    height: 180px;
-    width: 150px;
+    height: 200px;
+    width: 170px;
     padding: 10px;
     padding-top: 20px;
     border-radius: 20px;
@@ -165,10 +171,12 @@
     flex-wrap: wrap;
     justify-content: left;
     align-content: flex-start;
-    position: absolute;
-    top: 10%;
-    height: 400px;
-    width: 300px;
+    height: 50vmin;
+    width: 40vmin;
+    max-width: 380px;
+    min-width: 330px;
+    max-height: 480px;
+    min-height: 410px;
     background-color: black;
     box-shadow: gray 5px 5px 2px;
     border-radius: 20px;
@@ -179,6 +187,31 @@
     cursor: default;
     user-select: none;
 }
+
+.playerQ {
+    position: absolute;
+    top: 9%;
+}
+
+.czarQ {
+    position: relative;
+}
+
+.czarQCont {
+    position: relative;
+    width: 40%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.czarTemp {
+    width: 60%;
+    height: 100%;
+    z-index: 1;
+}
+
 
 pre { 
     margin-top: 0px;

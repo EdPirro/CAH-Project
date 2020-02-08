@@ -46,10 +46,10 @@ function Menu(props) {
                 <div className="pStat"></div>
                 <div className="pStat"></div>
             </div>
-            <div className="tCont">
+            {props.time !== undefined && <div className="tCont">
                 Remaining time:
                 <div >{props.time}s</div>
-            </div>
+            </div>}
         </div>
     )
 }
