@@ -34,7 +34,9 @@ function Answer(props) {
         ref.current.style.left = `${normalLeft - 10}px`;
         ref.current.style.top  = "-10px";
         ref.current.style.zIndex = 1;
-        ref.current.classList.add("grown");
+        ref.current.style.height = "200px";
+        ref.current.style.width = "170px";
+        // ref.current.classList.add("grown");
         props.tryAnswer[0](props.card.content)
     };
 
@@ -47,7 +49,8 @@ function Answer(props) {
         ref.current.style.left = `${normalLeft}px`;
         ref.current.style.top  = "";
         ref.current.style.zIndex = -props.pos;
-        ref.current.classList.remove("grown");
+        ref.current.style.height = "180px";
+        ref.current.style.width = "150px";
         props.tryAnswer[1]()
     };
 
@@ -71,12 +74,16 @@ function Answer(props) {
 
     // render
     return (
-        <>
-            <div className="answer" onMouseOver={handleOver} onMouseOut={handleOut} onClick={handleClick} style={style} ref={ref}>
-                {props.card.content}
-            </div>
-            {clicked && <div className="cover" style={style} onClick={handleUnClick}></div>}
-        </>
+            clicked ? 
+                <div className="answer cover" onClick={handleUnClick} style={style} ref={ref}>
+                    {props.card.content}
+                </div>
+                :
+                <div className="answer " onMouseOver={handleOver} onMouseOut={handleOut} onClick={handleClick} style={style} ref={ref}>
+                    {props.card.content}
+                </div>
+            
+        
     );
 }
 

@@ -4,9 +4,18 @@ import Hand from "./Hand";
 import Menu from "./Menu"
 
 function Game() {
+
     const [setAns, setSetAns] = React.useState([]);
     const [tryAns, setTryAns] = React.useState(null);
+    const [time, setTime] = React.useState(60);
+    const inter = React.useRef(null);
     let full = false;
+
+    // setup a interval to deduct a second of the timer every 1000ms
+    React.useEffect(() => {inter.current = setInterval(() => setTime(t => t - 1), 1000)}, []) // empty dependency array -> only once
+    // setTime(t => t - 1) will allow us not to put time in the dependency array and will always update as a funtion of the last time value
+    
+    if(!time) clearInterval(inter.current);
 
     const card = {
         nAns: 3, 
@@ -76,7 +85,7 @@ function Game() {
             <link rel="stylesheet" type="text/css" href="styles/game.css" />
             <div className="main">
                 <Question card={card} setAns={setAns} tryAns={tryAns} />
-                <Menu />
+                <Menu time={time}/>
                 <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
             </div>
         </>
