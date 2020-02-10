@@ -2,14 +2,15 @@ import React from "react";
 import Question from "./Question";
 import Hand from "./Hand";
 import Menu from "./Menu";
-import SubmittedAnswers from "./SubmittedAnswers";
+import AnswersContainer from "./AnswersContainer";
 
 function Game() {
 
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
     const [time, setTime] = React.useState(5); // time (s) to play
-    const [czar, setCzar] = React.useState(false);
+    const [czar, setCzar] = React.useState(true);
+    const [chosenPlayer, setChosenPlayer] = React.useState(null);
     const inter = React.useRef(null);
     let full = false;
 
@@ -27,16 +28,11 @@ function Game() {
         begin: true
     };
 
-    const revealAnswer = ans => {
+    const revealAnswer = player => {
         const newAns =[]
-        for(const elem of ans) newAns.push(elem);
+        for(const elem of player.cards) newAns.push(elem);
         setSetAns(newAns);
-    }
-
-    const hideAnswer = () => {
-        const newAns = [];
-        newAns[card.nAns - 1] =  undefined;
-        setSetAns([]);
+        setChosenPlayer(player.id);
     }
 
     // Functions to add or remove a card to/from tryAns
@@ -97,6 +93,31 @@ function Game() {
     hand.push({content: "A fully charged phone "});
     hand.push({content: "A very hairy pizza delivery guy "});
     hand.push({content: "My dungeon "});
+
+    const players = [
+        {id: 0, cards: ["a", "b", "c"]},
+        {id: 1, cards: ["d", "e", "f"]},
+        {id: 2, cards: ["g", "h", "i"]},
+        {id: 3, cards: ["g", "h", "i"]},
+        {id: 4, cards: ["g", "h", "i"]},
+        {id: 5, cards: ["g", "h", "i"]},
+        {id: 6, cards: ["g", "h", "i"]},
+        {id: 7, cards: ["g", "h", "i"]},
+        {id: 8, cards: ["g", "h", "i"]},
+        {id: 9, cards: ["g", "h", "i"]},
+        {id: 10, cards: ["g", "h", "i"]},
+        {id: 11, cards: ["g", "h", "i"]},
+        {id: 12, cards: ["g", "h", "i"]},
+        {id: 13, cards: ["g", "h", "i"]},
+    ];
+
+    const subAns = players.map(player => <AnswersContainer 
+                                            key={player.id}
+                                            player={player} 
+                                            revealAnswer={revealAnswer}
+                                            show={player.id === chosenPlayer}
+                                        /> 
+                            );
  
     return (
         <>
@@ -107,18 +128,17 @@ function Game() {
                     <>
                         <div className="czarQCont">
                             <Question card={card} setAns={setAns} tryAns={tryAns} divClass="czarQ" />
+                            <div className="czarBut">Select</div>
                         </div>
-                        <Menu ></Menu>
-                        <SubmittedAnswers 
-                            answers={[["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"]]} 
-                            revealAnswer={revealAnswer} 
-                            hideAnswer={hideAnswer}
-                        />
+                        <Menu time={time} pos="left" ></Menu>
+                        <div className="czarSubAns" >
+                            {subAns}
+                        </div>
                     </> : 
                     <>
                         
                         <Question card={card} setAns={setAns} tryAns={tryAns} divClass="playerQ"/>
-                        <Menu time={time}/>
+                        <Menu time={time} pos="right"/>
                         <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
                     </>
                 }

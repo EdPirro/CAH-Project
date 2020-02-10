@@ -37,9 +37,9 @@ function Answer(props) {
     const handleOver = () => {
         ref.current.style.left = `${normalLeft - 10}px`;
         ref.current.style.top  = "-10px";
-        ref.current.style.zIndex = 1;
         ref.current.style.height = "220px";
         ref.current.style.width = "190px";
+        ref.current.style.zIndex = 1;
         if(props.tryAnswer) props.tryAnswer[0](props.card.content)
     };
 
@@ -77,6 +77,11 @@ function Answer(props) {
 
     // render
     return (
+        props.hidden ? 
+            <div className="answer hiddenAnswer" style={style} ref={ref}> 
+                CAH
+            </div>
+            :
             clicked ? 
                 <div className="answer cover" onClick={handleUnClick} style={style} ref={ref}>
                     {props.card.content}

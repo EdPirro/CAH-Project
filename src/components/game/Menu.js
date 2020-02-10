@@ -22,15 +22,17 @@ function Menu(props) {
         if(e.key === "i") setHidden(true);
     }
 
+    const style = props.pos === "right" ? {right: "0px"} : {left: "0px"}
+
     return (
         hidden ?
-            <div className="mHid" onClick={() => setHidden(false)} >
+            <div className="mHid" style={style} onClick={() => setHidden(false)} >
                 I
             </div>
         :
-        <div className="menu scrollbar">
-            <div className="mTop">
-                <button className="mBut" onClick={() => setHidden(true)} >></button>
+        <div className="menu scrollbar" style={style}>
+            <div className={` mTop ${props.pos === "right" ? "mEnd" : "mStart"}`}>
+                <button className="mBut" onClick={() => setHidden(true)} ><strong>^</strong></button>
             </div>
             <div className="pCont">
                 <div className="pStat"></div>

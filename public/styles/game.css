@@ -63,7 +63,14 @@
     height: fit-content;
     display: flex;
     flex-direction: row;
+}
+
+.mEnd {
     justify-content: flex-end;
+}
+
+.mStart {
+    justify-content: flex-start;
 }
 
 .mBut {
@@ -72,13 +79,14 @@
     height: 5vmin;
     min-height: 20px;
     border: none;
-    margin-right: 7px;
-    margin-top: 7px;
-    background-color: black;
+    margin: 7px;
+    background-color: white;
     border-radius: 6px;
-    color: white;
+    color: black;
+    text-decoration: black;
     outline: none;
     cursor: pointer;
+    font-size: xx-large;
 }
 
 .pCont {
@@ -193,26 +201,6 @@
     top: 9%;
 }
 
-.czarQ {
-    position: relative;
-}
-
-.czarQCont {
-    position: relative;
-    width: 40%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.czarTemp {
-    width: 60%;
-    height: 100%;
-    z-index: 1;
-}
-
-
 pre { 
     margin-top: 0px;
     margin-bottom: 5px;
@@ -244,3 +232,72 @@ pre {
     
 }
 
+/* Czar view*/
+.czarQ {
+    position: relative;
+}
+
+.czarQCont {
+    position: relative;
+    width: 40%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.czarBut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background-color: white;
+    font-size: xx-large;
+    color: black;
+    border: solid 2px black;
+    cursor: pointer;
+    margin-top: 10%;
+    width: 40vmin;
+    height: 10vmin;
+    transition: all 0.2s;
+    z-index: 1;
+}
+
+.czarBut:hover {
+    background-color: black;
+    color: white;
+}
+
+.czarSubAns {
+    display: flex;
+    flex-direction: row;
+    overflow-y: auto;
+    flex-wrap: wrap;
+    width: 60%;
+    height: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: black lightgray;
+    z-index: 1;
+}
+
+.czarAnsCont {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 234px;
+    width: 30%;
+    margin: 10px;
+    z-index: -100;
+}
+
+.hiddenAnswer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding-top: 10px;
+    background-color: darkgray;
+    font-size: xx-large;
+}
