@@ -3,19 +3,30 @@ import Question from "./Question";
 import Hand from "./Hand";
 import Menu from "./Menu";
 import AnswersContainer from "./AnswersContainer";
+import io from "socket.io-client";
 
-function Game() {
-
+function Game(props) {
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
     const [time, setTime] = React.useState(200); // time (s) to play
     const [czar, setCzar] = React.useState(true);
     const [chosenPlayer, setChosenPlayer] = React.useState(null);
+
+
+    const [socket, setSocket] = React.useState();
     const inter = React.useRef(null);
     let full = false;
 
     // setup a interval to deduct a second of the timer every 1000ms
-    React.useEffect(() => {inter.current = setInterval(() => setTime(t => t - 1), 1000)}, []) // empty dependency array -> only once
+    React.useEffect(() => {
+        inter.current = setInterval(() => setTime(t => t - 1), 1000);
+        if(!socket) setSocket(io(props.url, {id: 100}));
+        if(socket) {
+            socket.on('connect', () => {
+                console.log("connected");
+            })
+        };
+    }, [socket, props.url]) // empty dependency array -> only once
     // setTime(t => t - 1) will allow us not to put time in the dependency array and will always update as a funtion of the last time value
     
     if(!time) {
