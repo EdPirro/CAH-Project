@@ -7,11 +7,11 @@ function AnswersContainer(props) {
     const [width, setWidth] = React.useState(0.0);
 
     const handleResize = () => {
-        setWidth(window.innerWidth * 0.18);
+        setWidth(window.innerWidth * 0.15);
     }
 
     React.useEffect(() => {
-        setWidth(window.innerWidth * 0.18);
+        setWidth(window.innerWidth * 0.15);
         window.addEventListener("resize", handleResize);
 
         return () => {window.removeEventListener("resize", handleResize);}

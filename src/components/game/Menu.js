@@ -2,9 +2,10 @@ import React from "react";
 
 function Menu(props) {
     const [hidden, setHidden] = React.useState(true);
+
     React.useEffect(() => {
         window.addEventListener("keydown", keyDownHandle);
-        window.addEventListener("keyup", keyUpHandle)
+        window.addEventListener("keyup", keyUpHandle);
 
         return(() => {
             window.removeEventListener("keydown", keyDownHandle)
@@ -26,7 +27,7 @@ function Menu(props) {
 
     return (
         hidden ?
-            <div className="mHid" style={style} onClick={() => setHidden(false)} >
+            <div className={`mHid ${props.time < 10 && "mAnimate"}`} style={style} onClick={() => setHidden(false)} >
                 I
             </div>
         :
@@ -48,7 +49,7 @@ function Menu(props) {
                 <div className="pStat"></div>
                 <div className="pStat"></div>
             </div>
-            {props.time !== undefined && <div className="tCont">
+            {props.time !== undefined && <div className="tCont" style={props.time < 10 ? {color: "red"} : {}}>
                 Remaining time:
                 <div >{props.time}s</div>
             </div>}

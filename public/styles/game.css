@@ -38,6 +38,29 @@
     border-radius: 20px;
 }
 
+.mAnimate { 
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        color: black;
+        border-color: black;
+    }
+    40% {
+        color: red;
+        border-color: red;
+    }
+    60% {
+        color: red;
+        border-color: red;
+    }
+    100% {
+        color: black;
+        border-color: black;
+    }
+}
+
 .menu {
     position: absolute;
     right: 0px;
@@ -239,7 +262,7 @@ pre {
 
 .czarQCont {
     position: relative;
-    width: 40%;
+    width: 50%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -272,9 +295,10 @@ pre {
 .czarSubAns {
     display: flex;
     flex-direction: row;
+    justify-content: space-around;
     overflow-y: auto;
     flex-wrap: wrap;
-    width: 60%;
+    width: 50%;
     height: 99%;
     scrollbar-width: thin;
     scrollbar-color: black lightgray;

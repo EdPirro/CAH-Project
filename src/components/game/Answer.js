@@ -31,7 +31,7 @@ function Answer(props) {
 
     /**
      * function to handle onMouseOver event, will reposition and grow the card's display
-     * and send it's content to the props.tryAnswer[0](), a functions that will print the 
+     * and send it's content to the props.tryAnswer[0](), a functions that will print the
      * content to the Question card's next blank (defined at Game.js)
      */
     const handleOver = () => {

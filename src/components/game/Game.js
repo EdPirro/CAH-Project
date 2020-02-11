@@ -8,7 +8,7 @@ function Game() {
 
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
-    const [time, setTime] = React.useState(5); // time (s) to play
+    const [time, setTime] = React.useState(200); // time (s) to play
     const [czar, setCzar] = React.useState(true);
     const [chosenPlayer, setChosenPlayer] = React.useState(null);
     const inter = React.useRef(null);
