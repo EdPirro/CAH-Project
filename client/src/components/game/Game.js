@@ -19,7 +19,7 @@ function Game(props) {
 
     // setup a interval to deduct a second of the timer every 1000ms
     React.useEffect(() => {
-        inter.current = setInterval(() => setTime(t => t - 1), 1000);
+        if(!inter.current)inter.current = setInterval(() => setTime(t => t - 1), 1000);
         if(!socket) setSocket(io(props.url, {id: 100}));
         if(socket) {
             socket.on('connect', () => {
