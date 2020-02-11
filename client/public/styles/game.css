@@ -1,0 +1,326 @@
+.playerMain {
+    position: absolute;
+    align-items: flex-start;
+    justify-content: center;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    font-family: cursive;
+    background-color: lightgray;
+    z-index: -1000;
+    overflow: auto;
+}
+
+
+/* Menu style*/
+.mHid {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    max-width: 100px;
+    max-height: 100px;
+    width: 15vmin;
+    height: 15vmin;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    cursor: pointer;
+    z-index: 1;
+    font-size: xx-large;
+
+    background-color: white;
+    border: solid 2px black;
+    border-radius: 20px;
+}
+
+.mAnimate { 
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        color: black;
+        border-color: black;
+    }
+    40% {
+        color: red;
+        border-color: red;
+    }
+    60% {
+        color: red;
+        border-color: red;
+    }
+    100% {
+        color: black;
+        border-color: black;
+    }
+}
+
+.menu {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 30%;
+    max-height: 95%;
+    background-color: blue;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 10px;
+    z-index: 1;
+
+    background-color: white;
+    border: solid 2px black;
+    border-radius: 20px;
+}
+
+.mTop {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+}
+
+.mEnd {
+    justify-content: flex-end;
+}
+
+.mStart {
+    justify-content: flex-start;
+}
+
+.mBut {
+    width: 5vmin;
+    min-width: 20px;
+    height: 5vmin;
+    min-height: 20px;
+    border: none;
+    margin: 7px;
+    background-color: white;
+    border-radius: 6px;
+    color: black;
+    text-decoration: black;
+    outline: none;
+    cursor: pointer;
+    font-size: xx-large;
+}
+
+.pCont {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: black white;
+    padding-bottom: 2vmin;
+    
+}
+
+.scrollbar ::-webkit-scrollbar {
+    width: 5px;
+    background-color: white;
+}
+
+.scrollbar ::-webkit-scrollbar-thumb {
+    background: black;
+}
+
+.pStat{
+    background-color: black;
+    width: 16vmin;
+    height: 16vmin;
+    margin: 5px;
+    margin-top: 10px;
+}
+
+.tCont {
+    width: 100%;
+    height: 16vh;
+    min-height: fit-content;
+    min-width: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: xx-large;
+    user-select: none;
+}
+
+/* Hand style */
+.hand {
+    position: absolute;
+    margin-left: 1.5%;
+    margin-right: 1.5%;
+    margin-bottom: 12px;
+    bottom: 0px;
+    left: 0px;
+    height: 234px;
+    width: 97%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    z-index: -1000;
+}
+
+/* Answer card styles */
+.answer {
+    height: 200px;
+    width: 170px;
+    padding: 10px;
+    padding-top: 20px;
+    border-radius: 20px;
+    background-color: white;
+    border: solid 2px black;
+    transition: all 0.1s;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cover {
+    background-color: darkgray;
+    opacity: 0.8;
+}
+
+
+/* Question card styles */
+.question {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: left;
+    align-content: flex-start;
+    height: 50vmin;
+    width: 40vmin;
+    max-width: 380px;
+    min-width: 330px;
+    max-height: 480px;
+    min-height: 410px;
+    background-color: black;
+    box-shadow: gray 5px 5px 2px;
+    border-radius: 20px;
+    font-size: x-large;
+    /* font-family: cursive; */
+    padding: 20px;
+    z-index: -1000;
+    cursor: default;
+    user-select: none;
+}
+
+.playerQ {
+    position: absolute;
+    top: 9%;
+}
+
+pre { 
+    margin-top: 0px;
+    margin-bottom: 5px;
+    white-space: pre-wrap;
+    max-width: 100%;
+}
+
+.qText {
+    color: white;
+}
+
+.qAnswer {
+    color: blue;
+}
+
+.pickTwo {
+    color: white;
+    font-size: xx-large;
+    position: absolute;
+    bottom: 4%;
+    right: 8%;
+    border-radius: 100%;
+    border: double 5px white;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+/* Czar view*/
+.czarQ {
+    position: relative;
+}
+
+.czarQCont {
+    position: relative;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.czarBut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 25px;
+    background-color: white;
+    font-size: xx-large;
+    color: black;
+    border: solid 2px black;
+    cursor: pointer;
+    margin-top: 10%;
+    width: 40vmin;
+    height: 10vmin;
+    transition: all 0.2s;
+    z-index: 1;
+}
+
+.czarBut:hover {
+    background-color: black;
+    color: white;
+}
+
+.czarSubAns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    overflow-y: auto;
+    flex-wrap: wrap;
+    width: 50%;
+    height: 99%;
+    scrollbar-width: thin;
+    scrollbar-color: black lightgray;
+    z-index: 1;
+}
+
+.czarAnsCont {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 234px;
+    width: 30%;
+    margin: 10px;
+    z-index: -100;
+}
+
+.hiddenAnswer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    background-color: #c0c0c0;
+    font-size: xx-large;
+}
