@@ -6,38 +6,55 @@ import AnswersContainer from "./AnswersContainer";
 import io from "socket.io-client";
 
 function Game(props) {
+
+
+    const [loaded, setLoaded] = React.useState(false);
+    const [hand, setHand] = React.useState(null);
+    const [question, setQuestion] = React.useState(null);
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
     const [time, setTime] = React.useState(200); // time (s) to play
-    const [czar, setCzar] = React.useState(true);
-    const [chosenPlayer, setChosenPlayer] = React.useState(null);
-
-
-    const [socket, setSocket] = React.useState();
+    const [czar, setCzar] = React.useState(false); // wether the player is or not the czar
+    const [chosenPlayer, setChosenPlayer] = React.useState(null); // select the player chosen by the czar
+    const [socket, setSocket] = React.useState(null); // socket used to comunnicate with server
+    // const [pos, setPos] = React.useState(null); // player position in server's player array
+    const [neededPlayers, setNeededPlayers] = React.useState(4); // if the game is waiting for more players
     const inter = React.useRef(null);
     let full = false;
 
+    const setUpSocket = React.useMemo(() => () => {
+        
+        socket.on("new-player", msg => {
+            setNeededPlayers(msg.waitingFor);
+        });
+
+        socket.on("new-round", msg => {
+            setQuestion(msg.question)
+            setHand(msg.hand);
+        });
+
+        socket.on("round-ready", msg => {
+            setLoaded(true);
+        });
+    }, [socket]);
+
     // setup a interval to deduct a second of the timer every 1000ms
+    React.useEffect(() => {inter.current = setInterval(() => setTime(t => t - 1), 1000)}, []);
+    React.useEffect(() => {setSocket(io(props.url))}, [props.url]);
     React.useEffect(() => {
-        if(!inter.current)inter.current = setInterval(() => setTime(t => t - 1), 1000);
-        if(!socket) setSocket(io(props.url, {id: 100}));
         if(socket) {
-            socket.on('connect', () => {
-                console.log("connected");
-            })
-        };
-    }, [socket, props.url]) // empty dependency array -> only once
-    // setTime(t => t - 1) will allow us not to put time in the dependency array and will always update as a funtion of the last time value
-    
+            setUpSocket();
+        }
+    }, [socket, setUpSocket]);
+
     if(!time) {
-        clearInterval(inter.current)
+        clearInterval(inter.current);
     };
 
-    const card = { // question card
-        nAns: 3, 
-        content: [" is the most arousing thing in the world ", "aaaa ", "."], 
-        begin: true
-    };
+    const disconnect = () => {
+        socket.disconnect();
+        props.gameOver();
+    }
 
     const revealAnswer = player => {
         const newAns =[]
@@ -51,12 +68,12 @@ function Game(props) {
         if(full) return;
         const newAns = [];
         let set = false;
-        for(let i = 0; i < card.nAns; i++) {
+        for(let i = 0; i < question.nAns; i++) {
             newAns[i] = setAns[i];
             if(!set && !setAns[i]) {
                 newAns[i] = content;
                 set = true;
-                if(i === card.nAns - 1) full = true;
+                if(i === question.nAns - 1) full = true;
             }
         }
         if(set) {
@@ -68,7 +85,7 @@ function Game(props) {
     const unSetAnswer = content => {
         const newAns = [];
         let taken = false;
-        for(let i = 0; i < card.nAns; i++) {
+        for(let i = 0; i < question.nAns; i++) {
             newAns[i] = setAns[i];
             if(!taken && setAns[i] === content) {
                 newAns[i] = undefined;
@@ -79,10 +96,10 @@ function Game(props) {
         full = false;
     }
 
-    // Functions to add or remove a card to/from setAns
+    // Functions to add or remove a question to/from setAns
     const tryAnswer = content => {
         if((() => {
-            for(let i = 0; i < card.nAns; i++) if(!setAns[i]) return false;
+            for(let i = 0; i < question.nAns; i++) if(!setAns[i]) return false;
             return true;
         })()) return;
 
@@ -93,34 +110,7 @@ function Game(props) {
         setTryAns(null);
     }
 
-    const hand = []; // list of cards (the player's hand)
-    hand.push({content: "Yo mamma "});
-    hand.push({content: "Richard Gere holding a banana "});
-    hand.push({content: "A very clever monkey "});
-    hand.push({content: "Some ugly sweater "});
-    hand.push({content: "My father's penis "});
-    hand.push({content: "Venereal Desease "});
-    hand.push({content: "A bunch of sweaty men "});
-    hand.push({content: "A fully charged phone "});
-    hand.push({content: "A very hairy pizza delivery guy "});
-    hand.push({content: "My dungeon "});
-
-    const players = [
-        {id: 0, cards: ["a", "b", "c"]},
-        {id: 1, cards: ["d", "e", "f"]},
-        {id: 2, cards: ["g", "h", "i"]},
-        {id: 3, cards: ["g", "h", "i"]},
-        {id: 4, cards: ["g", "h", "i"]},
-        {id: 5, cards: ["g", "h", "i"]},
-        {id: 6, cards: ["g", "h", "i"]},
-        {id: 7, cards: ["g", "h", "i"]},
-        {id: 8, cards: ["g", "h", "i"]},
-        {id: 9, cards: ["g", "h", "i"]},
-        {id: 10, cards: ["g", "h", "i"]},
-        {id: 11, cards: ["g", "h", "i"]},
-        {id: 12, cards: ["g", "h", "i"]},
-        {id: 13, cards: ["g", "h", "i"]},
-    ];
+    const players = [];
 
     const subAns = players.map(player => <AnswersContainer 
                                             key={player.id}
@@ -129,32 +119,38 @@ function Game(props) {
                                             show={player.id === chosenPlayer}
                                         /> 
                             );
- 
+    
     return (
-        <>
-            <link rel="stylesheet" type="text/css" href="styles/game.css" />
-            <div className="playerMain">
-                <button style={{position: "absolute", top: "0px", left: "0px", zIndex: 1}} onClick={() => setCzar(!czar)}>Toggle</button>
-                {czar ? 
+            neededPlayers ?
+            <>Waiting on {neededPlayers} players...</> :
+            <>
+                {loaded ? 
                     <>
-                        <div className="czarQCont">
-                            <Question card={card} setAns={setAns} tryAns={tryAns} divClass="czarQ" />
-                            <div className="czarBut">Select</div>
-                        </div>
-                        <Menu time={time} pos="left" ></Menu>
-                        <div className="czarSubAns" >
-                            {subAns}
-                        </div>
-                    </> : 
-                    <>
-                        
-                        <Question card={card} setAns={setAns} tryAns={tryAns} divClass="playerQ"/>
-                        <Menu time={time} pos="right"/>
-                        <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
-                    </>
-                }
-            </div>
-        </>
+                        <link rel="stylesheet" type="text/css" href="styles/game.css" />
+                        <div className="playerMain">
+                            <button style={{position: "absolute", top: "0px", left: "0px", zIndex: 1}} onClick={disconnect}>Disconnect</button>
+                            {czar ? 
+                                <>
+                                    <div className="czarQCont">
+                                        <Question card={question} setAns={setAns} tryAns={tryAns} divClass="czarQ" />
+                                        <div className="czarBut">Select</div>
+                                    </div>
+                                    <Menu time={time} pos="left" ></Menu>
+                                    <div className="czarSubAns" >
+                                        {subAns}
+                                    </div>
+                                </> : 
+                                <>
+                                    
+                                    <Question card={question} setAns={setAns} tryAns={tryAns} divClass="playerQ"/>
+                                    <Menu time={time} pos="right"/>
+                                    <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
+                                </>
+                            }
+                        </div> 
+                    </>:
+                    <>loading...</>}
+            </> 
     );
 }
 
