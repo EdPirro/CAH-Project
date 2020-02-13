@@ -1,26 +1,23 @@
 import React from "react";
-import Question from "./Question";
-import Hand from "./Hand";
-import Menu from "./Menu";
-import AnswersContainer from "./AnswersContainer";
+import PlayerView from "./PlayerView";
+import CzarView from "./CzarView";
 import io from "socket.io-client";
 
+
+
 function Game(props) {
-
-
-    const [loaded, setLoaded] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
     const [hand, setHand] = React.useState(null);
     const [question, setQuestion] = React.useState(null);
+    const [spectating, setSpectating] = React.useState(null);
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
     const [time, setTime] = React.useState(200); // time (s) to play
     const [czar, setCzar] = React.useState(false); // wether the player is or not the czar
-    const [chosenPlayer, setChosenPlayer] = React.useState(null); // select the player chosen by the czar
     const [socket, setSocket] = React.useState(null); // socket used to comunnicate with server
-    // const [pos, setPos] = React.useState(null); // player position in server's player array
     const [neededPlayers, setNeededPlayers] = React.useState(4); // if the game is waiting for more players
     const inter = React.useRef(null);
-    let full = false;
+    const full = React.useRef(false);
 
     const setUpSocket = React.useMemo(() => () => {
         
@@ -33,9 +30,15 @@ function Game(props) {
             setHand(msg.hand);
         });
 
-        socket.on("round-ready", msg => {
-            setLoaded(true);
+        socket.on("spectating", msg => {
+            setSpectating(true);
         });
+
+        socket.on("set-czar", () => {
+            setCzar(true);
+        }) 
+
+
     }, [socket]);
 
     // setup a interval to deduct a second of the timer every 1000ms
@@ -46,6 +49,12 @@ function Game(props) {
             setUpSocket();
         }
     }, [socket, setUpSocket]);
+    React.useEffect(() => {
+        if(question && hand) setLoading(false);
+    }, [question, hand]);
+    React.useEffect(() => {
+        if(full.current) socket.emit("send-answer", {setAns});
+    }, [setAns, socket])
 
     if(!time) {
         clearInterval(inter.current);
@@ -56,16 +65,15 @@ function Game(props) {
         props.gameOver();
     }
 
-    const revealAnswer = player => {
-        const newAns =[]
-        for(const elem of player.cards) newAns.push(elem);
+    const revealAnswer = answer => {
+        const newAns = [];
+        for(const elem of answer) newAns.push(elem);
         setSetAns(newAns);
-        setChosenPlayer(player.id);
     }
 
     // Functions to add or remove a card to/from tryAns
     const setAnswer = content => {
-        if(full) return;
+        if(full.current) return;
         const newAns = [];
         let set = false;
         for(let i = 0; i < question.nAns; i++) {
@@ -73,16 +81,17 @@ function Game(props) {
             if(!set && !setAns[i]) {
                 newAns[i] = content;
                 set = true;
-                if(i === question.nAns - 1) full = true;
+                if(i === question.nAns - 1) full.current = true;
             }
         }
         if(set) {
-            setSetAns(newAns)
+            setSetAns(newAns);
             return true;
         };
     }
 
     const unSetAnswer = content => {
+        if(full.current) socket.emit("remove-answer");
         const newAns = [];
         let taken = false;
         for(let i = 0; i < question.nAns; i++) {
@@ -93,7 +102,7 @@ function Game(props) {
             }
         }
         if(taken) setSetAns(newAns);
-        full = false;
+        full.current = false;
     }
 
     // Functions to add or remove a question to/from setAns
@@ -109,48 +118,44 @@ function Game(props) {
     const unTryAnswer = () => {
         setTryAns(null);
     }
-
-    const players = [];
-
-    const subAns = players.map(player => <AnswersContainer 
-                                            key={player.id}
-                                            player={player} 
-                                            revealAnswer={revealAnswer}
-                                            show={player.id === chosenPlayer}
-                                        /> 
-                            );
     
     return (
-            neededPlayers ?
-            <>Waiting on {neededPlayers} players...</> :
-            <>
-                {loaded ? 
-                    <>
-                        <link rel="stylesheet" type="text/css" href="styles/game.css" />
-                        <div className="playerMain">
-                            <button style={{position: "absolute", top: "0px", left: "0px", zIndex: 1}} onClick={disconnect}>Disconnect</button>
-                            {czar ? 
-                                <>
-                                    <div className="czarQCont">
-                                        <Question card={question} setAns={setAns} tryAns={tryAns} divClass="czarQ" />
-                                        <div className="czarBut">Select</div>
-                                    </div>
-                                    <Menu time={time} pos="left" ></Menu>
-                                    <div className="czarSubAns" >
-                                        {subAns}
-                                    </div>
-                                </> : 
-                                <>
-                                    
-                                    <Question card={question} setAns={setAns} tryAns={tryAns} divClass="playerQ"/>
-                                    <Menu time={time} pos="right"/>
-                                    <Hand cards={hand} tryAnswer={[tryAnswer, unTryAnswer]} setAnswer={[setAnswer, unSetAnswer]} />
-                                </>
-                            }
-                        </div> 
-                    </>:
-                    <>loading...</>}
-            </> 
+        <>
+            <link rel="stylesheet" type="text/css" href="styles/game.css" />
+            <div className="main">
+                {spectating ? 
+                    <> spectating... </>
+                    :
+                    neededPlayers ? 
+                        <> Waiting for {neededPlayers} players </>
+                        :
+                        loading ? 
+                            <> Loading... </>
+                            : 
+                            czar ? 
+                                <CzarView 
+                                    socket={socket}
+                                    question={question}
+                                    setAns={setAns}
+                                    tryAns={tryAns}
+                                    time={time}
+                                    revealAnswer={revealAnswer}
+                                />
+                                :
+                                <PlayerView 
+                                    socket={socket}
+                                    question={question}
+                                    setAns={setAns}
+                                    tryAns={tryAns}
+                                    time={time}
+                                    hand={hand}
+                                    tryAnswer={[tryAnswer, unTryAnswer]}
+                                    setAnswer={[setAnswer, unSetAnswer]}
+                                />
+                }
+            </div>
+        </>
+
     );
 }
 

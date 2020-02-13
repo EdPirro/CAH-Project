@@ -18,10 +18,10 @@ function AnswersContainer(props) {
     }, []);
 
     const clickHandle = () => {
-        props.revealAnswer(props.player);
+        props.revealAnswer(props.answer, props.id);
     }
 
-    const nCards = props.player.cards.length;
+    const nCards = props.answer.length;
 
     let overlap = null
     if(width < (nCards * cardSize)) overlap = (((nCards * cardSize) - width) / (nCards - 1));
@@ -29,7 +29,7 @@ function AnswersContainer(props) {
 
     let content;
 
-    content = props.player.cards.map((v, id) => <Answer 
+    content = props.answer.map((v, id) => <Answer 
                                                     card={{content: v}} 
                                                     size={cardSize} 
                                                     key={id} 
