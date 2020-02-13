@@ -17,7 +17,7 @@ function Game(props) {
     const [socket, setSocket] = React.useState(null); // socket used to comunnicate with server
     const [neededPlayers, setNeededPlayers] = React.useState(4); // if the game is waiting for more players
     const inter = React.useRef(null);
-    const full = React.useRef(false);
+    const setAnsAmount = React.useRef(0);
 
     const setUpSocket = React.useMemo(() => () => {
         
@@ -53,8 +53,8 @@ function Game(props) {
         if(question && hand) setLoading(false);
     }, [question, hand]);
     React.useEffect(() => {
-        if(full.current) socket.emit("send-answer", {setAns});
-    }, [setAns, socket])
+        if(question && setAnsAmount.current === question.nAns) socket.emit("send-answer", {setAns});
+    }, [setAns, socket, question]);
 
     if(!time) {
         clearInterval(inter.current);
@@ -73,7 +73,7 @@ function Game(props) {
 
     // Functions to add or remove a card to/from tryAns
     const setAnswer = cardElem => {
-        if(full.current) return;
+        if(setAnsAmount.current === question.nAns) return;
         const newAns = [];
         let set = false;
         for(let i = 0; i < question.nAns; i++) {
@@ -81,28 +81,28 @@ function Game(props) {
             if(!set && !setAns[i]) {
                 newAns[i] = cardElem;
                 set = true;
-                if(i === question.nAns - 1) full.current = true;
             }
         }
         if(set) {
+            setAnsAmount.current++;
             setSetAns(newAns);
             return true;
         };
     }
 
     const unSetAnswer = cardElem => {
-        if(full.current) socket.emit("remove-answer");
+        if(setAnsAmount.current === question.nAns) socket.emit("remove-answer");
         const newAns = [];
         let taken = false;
         for(let i = 0; i < question.nAns; i++) {
             newAns[i] = setAns[i];
-            if(!taken && setAns[i].card.content === cardElem.card.content) {
+            if(!taken && setAns[i] && setAns[i].card.content === cardElem.card.content) {
                 newAns[i] = undefined;
                 taken = true;
             }
         }
         if(taken) setSetAns(newAns);
-        full.current = false;
+        setAnsAmount.current--;
     }
 
     // Functions to add or remove a question to/from setAns

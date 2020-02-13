@@ -6,10 +6,11 @@ const url = "http://192.168.0.10:8000/";
 
 function App() {
     const [namespace, setNamespace] = React.useState(null);
+    const createdGamePos = React.useRef(null);
 
     const createGame = () => {
         axios.post(url + "game", {name: "Game"}).then( res => {
-            setNamespace(res.data.namespace);
+            createdGamePos.current = res.data.slot; // saves the created game slot
         });
     }
 
@@ -20,7 +21,8 @@ function App() {
     }
 
     const gameOver = () => {
-        setNamespace(null);
+        axios.delete(url + "game", {slot: createdGamePos})
+        .then(res => setNamespace(null));
     }
 
     return (

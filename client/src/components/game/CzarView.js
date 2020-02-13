@@ -21,14 +21,17 @@ function CzarView(props) {
     }
 
 
-    const content = subAns.map((ans, id) => <AnswersContainer 
-            key={id}
-            id={ans.who}
-            answer={ans.answer} 
-            revealAnswer={revealAnswer}
-            show={ans.who === chosenPlayer}
-        /> 
-    );
+    const content = subAns.map((ans, id) => {
+        if(ans) return (<AnswersContainer 
+                            key={id}
+                            id={id}
+                            answer={ans.answer} 
+                            revealAnswer={revealAnswer}
+                            show={id === chosenPlayer}
+                        />);
+        return null;
+        }
+    ).filter(el => el !== null);
 
 
     return (
