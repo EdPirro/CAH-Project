@@ -31,9 +31,9 @@ function Question(props) {
 
     //if the card is set to begin with a blank it does so
     if(props.card.begin) {
-        if(props.setAns[0]) content.push(makeAnsDiv(props.setAns[0])); //if there's a answer already set it is used
+        if(props.setAns[0]) content.push(makeAnsDiv(props.setAns[0].card.content)); //if there's a answer already set it is used
         else if(tryAns) {
-            content.push(makeAnsDiv(tryAns));  // if there isn't a set answer and tryAnswer is set it's used
+            content.push(makeAnsDiv(tryAns.card.content));  // if there isn't a set answer and tryAnswer is set it's used
             tryAns = null;
         }
         else content.push(makeQueDiv("_____")); // if neither a try or a set Answer exists a blank is inserted
@@ -43,9 +43,9 @@ function Question(props) {
     for(let elem of props.card.content) {
         content.push(makeQueDiv(elem)); // creates a span with the Question content
         if(count < props.card.nAns) {
-            if(props.setAns[count]) content.push(makeAnsDiv(props.setAns[count])); //if there's a answer already set it is used
+            if(props.setAns[count]) content.push(makeAnsDiv(props.setAns[count].card.content)); //if there's a answer already set it is used
             else if(tryAns) {
-                content.push(makeAnsDiv(tryAns));  // if there isn't a set answer and tryAnswer is set it's used
+                content.push(makeAnsDiv(tryAns.card.content));  // if there isn't a set answer and tryAnswer is set it's used
                 tryAns = null;
             }
             else content.push(makeQueDiv("_____")); // if neither a try or a set Answer exists a blank is inserted

@@ -14,7 +14,7 @@ function Answer(props) {
 
     const handleClick = e => {
         if(e.defaultPrevented ||!props.setAnswer) return;
-        if(props.setAnswer[0](props.card.content)){
+        if(props.setAnswer[0](props.cardElem)){
             handleOut();
             setClicked(true);
         }
@@ -23,7 +23,7 @@ function Answer(props) {
 
     const handleUnClick = e => {
         if(e.defaultPrevented || !props.setAnswer) return;
-        props.setAnswer[1](props.card.content);
+        props.setAnswer[1](props.cardElem);
         setClicked(false);
         handleOver();
         e.preventDefault();
@@ -40,7 +40,7 @@ function Answer(props) {
         ref.current.style.height = "220px";
         ref.current.style.width = "190px";
         ref.current.style.zIndex = 1;
-        if(props.tryAnswer) props.tryAnswer[0](props.card.content)
+        if(props.tryAnswer) props.tryAnswer[0](props.cardElem)
     };
 
     /**

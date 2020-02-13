@@ -52,11 +52,18 @@ module.exports = class GameManager {
         }
     }
 
-    draw(hand, amount) {
-        if(!amount) amount = 1;
-        while(amount--){
-            hand.push(this.cards[1][this.cardCount[1]++]);
+    draw(player) {
+        if(player.replace[0] === "all") {
+            for(let a = 0; a < this.handSize; a++ ) {
+                player.hand[a] = {pos: a, card: this.cards[1][this.cardCount[1]++]};
+            }
         }
+        else {
+            for(elem of player.replace) {
+                player.hand[elem] = {pos: elem, card: this.cards[1][this.cardCount[1]++]};
+            }
+        }
+        player.replace=[];
     }
 
     getPos() {
@@ -80,11 +87,12 @@ module.exports = class GameManager {
                 // spectating -> playerList and beginRound ()
             }
         });
-
+// pos: x, card: {content: y}
         socket.on("send-answer", msg => {
             const sAPos = this.submittedAnswers.push({answer: msg.setAns, who: pos});
             this.playerList[pos].status = "ready";
             this.playerList[pos].sAPos = sAPos - 1;
+            msg.setAns.map(e => this.playerList[pos].replace.push(e.pos));
             this.io.to(`${this.playerList[this.czar].socket.id}`).emit("set-sub-ans", {subAns: this.submittedAnswers});
         });
 
@@ -92,6 +100,7 @@ module.exports = class GameManager {
             if(this.playerList[pos].sAPos !== null) {
                 this.submittedAnswers.splice(this.playerList[pos].sAPos, 1);
                 this.playerList[pos].sAPos = null;
+                this.playerList[pos].replace = [];
                 this.io.to(`${this.playerList[this.czar].socket.id}`).emit("set-sub-ans", {subAns: this.submittedAnswers});
             }
         })
@@ -101,10 +110,7 @@ module.exports = class GameManager {
         this.gamePhase = "playersAnswer";
         const question = this.cards[0][this.cardCount[0]++];
         for(const player of this.playerList) {
-            const dif = this.handSize - player.hand;
-            if(dif) {
-                this.draw(player.hand, dif);
-            }
+            this.draw(player);
             player.socket.emit("new-round", {question, hand: player.hand});
         }
         while(this.countPlayers() >= 4 && !this.playerList[this.czar]) this.cazar = (this.czar + 1) % this.playerList.length;
@@ -116,7 +122,7 @@ module.exports = class GameManager {
         this.io.on("connect", socket => {
             if(!this.inGame) {
                 const pos = this.getPos();
-                this.playerList[pos] = {socket, hand: [], points: 0, status: "waiting"};
+                this.playerList[pos] = {socket, hand: [], replace: ["all"], points: 0, status: "waiting"};
 
                 this.setupListeners(socket, pos);
 

@@ -72,14 +72,14 @@ function Game(props) {
     }
 
     // Functions to add or remove a card to/from tryAns
-    const setAnswer = content => {
+    const setAnswer = cardElem => {
         if(full.current) return;
         const newAns = [];
         let set = false;
         for(let i = 0; i < question.nAns; i++) {
             newAns[i] = setAns[i];
             if(!set && !setAns[i]) {
-                newAns[i] = content;
+                newAns[i] = cardElem;
                 set = true;
                 if(i === question.nAns - 1) full.current = true;
             }
@@ -90,13 +90,13 @@ function Game(props) {
         };
     }
 
-    const unSetAnswer = content => {
+    const unSetAnswer = cardElem => {
         if(full.current) socket.emit("remove-answer");
         const newAns = [];
         let taken = false;
         for(let i = 0; i < question.nAns; i++) {
             newAns[i] = setAns[i];
-            if(!taken && setAns[i] === content) {
+            if(!taken && setAns[i].card.content === cardElem.card.content) {
                 newAns[i] = undefined;
                 taken = true;
             }
@@ -106,13 +106,13 @@ function Game(props) {
     }
 
     // Functions to add or remove a question to/from setAns
-    const tryAnswer = content => {
+    const tryAnswer = cardElem => {
         if((() => {
             for(let i = 0; i < question.nAns; i++) if(!setAns[i]) return false;
             return true;
         })()) return;
 
-        setTryAns(content);
+        setTryAns(cardElem);
     };
 
     const unTryAnswer = () => {
@@ -137,7 +137,6 @@ function Game(props) {
                                     socket={socket}
                                     question={question}
                                     setAns={setAns}
-                                    tryAns={tryAns}
                                     time={time}
                                     revealAnswer={revealAnswer}
                                 />

@@ -29,15 +29,16 @@ function AnswersContainer(props) {
 
     let content;
 
-    content = props.answer.map((v, id) => <Answer 
-                                                    card={{content: v}} 
+    content = props.answer.map((cardElem, id) => <Answer 
+                                                    card={cardElem.card} 
                                                     size={cardSize} 
                                                     key={id} 
                                                     pos={id} 
                                                     overlap={overlap} 
                                                     noResize={true}
                                                     hidden={!props.show}
-                                                    />);
+                                                    />
+                                );
    
 
     return (

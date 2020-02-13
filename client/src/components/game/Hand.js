@@ -35,11 +35,12 @@ function Hand(props) {
     if(width < (cardSize * handSize)) overlap = ((cardSize * handSize) - width) / (handSize - 1);
 
     // creates a Answer component for each card in hand
-    const content = props.cards.map((card, id) => 
+    const content = props.cards.map(elem => 
         <Answer 
-            card={card} 
-            key={id} 
-            pos={id} 
+            cardElem={elem}
+            card={elem.card} 
+            key={elem.pos} 
+            pos={elem.pos} 
             handSize={handSize} 
             overlap={overlap} 
             tryAnswer={props.tryAnswer} 

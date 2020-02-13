@@ -34,7 +34,7 @@ function CzarView(props) {
     return (
         <>
             <div className="czarQCont">
-                <Question card={props.question} setAns={props.setAns} tryAns={props.tryAns} divClass="czarQ" />
+                <Question card={props.question} setAns={props.setAns} divClass="czarQ" />
                 <div className="czarBut">Select</div>
             </div>
             <Menu time={props.time} pos="left" ></Menu>
