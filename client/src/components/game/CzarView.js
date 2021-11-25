@@ -5,7 +5,7 @@ import AnswersContainer from "./AnswersContainer";
 
 
 function CzarView(props) {
-    const [chosenPlayer, setChosenPlayer] = React.useState(null); // select the player chosen by the czar]
+    const [chosenPlayer, setChosenPlayer] = React.useState(null); // select the player chosen by the czar
     const [subAns, setSubAns] = React.useState([]);
 
     React.useEffect(() => {

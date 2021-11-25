@@ -1,4 +1,4 @@
-const nsfw = [
+module.exports = [
     [
         {
             nAns: 1,
@@ -146,9 +146,3 @@ const nsfw = [
         {content: "A three-way with my wife and Shaquille O’Nea"},
     ]
 ];
-
-
-module.exports = {
-    nsfw,
-    sfw: nsfw
-};

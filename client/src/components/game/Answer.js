@@ -5,7 +5,6 @@ import React from "react";
  * React Component to render an answer
  * A answer card will always have a fixed size (174 x 214) and will overlap each other to fit on screen.
  * Upon hovering it will increase its size and set its content to the Question card's next blank.
- * @param {*} props 
  */
 function Answer(props) {
     const [clicked, setClicked] = React.useState(false);

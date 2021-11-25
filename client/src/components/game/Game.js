@@ -3,8 +3,6 @@ import PlayerView from "./PlayerView";
 import CzarView from "./CzarView";
 import io from "socket.io-client";
 
-
-
 function Game(props) {
     const [loading, setLoading] = React.useState(true);
     const [hand, setHand] = React.useState(null);
@@ -21,16 +19,17 @@ function Game(props) {
 
     const setUpSocket = React.useMemo(() => () => {
         
-        socket.on("new-player", msg => {
-            setNeededPlayers(msg.waitingFor);
+        socket.on("waiting", msg => {
+            setNeededPlayers(msg.for);
         });
 
-        socket.on("new-round", msg => {
-            setQuestion(msg.question)
+        socket.on("players-pick-phase", msg => {
+            setNeededPlayers(0);
+            setQuestion(msg.question);
             setHand(msg.hand);
         });
 
-        socket.on("spectating", msg => {
+        socket.on("spectating", () => {
             setSpectating(true);
         });
 
@@ -43,17 +42,21 @@ function Game(props) {
 
     // setup a interval to deduct a second of the timer every 1000ms
     React.useEffect(() => {inter.current = setInterval(() => setTime(t => t - 1), 1000)}, []);
+
     React.useEffect(() => {setSocket(io(props.url))}, [props.url]);
+
     React.useEffect(() => {
         if(socket) {
             setUpSocket();
         }
     }, [socket, setUpSocket]);
+
     React.useEffect(() => {
         if(question && hand) setLoading(false);
     }, [question, hand]);
+    
     React.useEffect(() => {
-        if(question && setAnsAmount.current === question.nAns) socket.emit("send-answer", {setAns});
+        if(question && setAnsAmount.current === question.nAns) socket.emit("send-answer", setAns);
     }, [setAns, socket, question]);
 
     if(!time) {
