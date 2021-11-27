@@ -9,7 +9,7 @@ const cardSize = 194;//px
  * It's also Hand's responsability to calculate a answer card's overlap to fit the windows's width.
  * @param {*} props 
  */
-function Hand(props) {
+function Hand({ cards, tryAnswer, unTryAnswer, setAnswer, unSetAnswer }) {
     const [width, setWidth] = React.useState(0.0); // use width as state to re-render after resize.
 
     /**
@@ -30,12 +30,12 @@ function Hand(props) {
     }, []); // a empty dependency array will grant this to run only once
 
     // calculates card's overlap 
-    const handSize = props.cards.length;
+    const handSize = cards.length;
     let overlap = undefined;
     if(width < (cardSize * handSize)) overlap = ((cardSize * handSize) - width) / (handSize - 1);
 
     // creates a Answer component for each card in hand
-    const content = props.cards.map(elem => 
+    const content = cards.map(elem => 
         <Answer 
             cardElem={elem}
             card={elem.card} 
@@ -43,8 +43,10 @@ function Hand(props) {
             pos={elem.pos} 
             handSize={handSize} 
             overlap={overlap} 
-            tryAnswer={props.tryAnswer} 
-            setAnswer={props.setAnswer} 
+            setAnswer={setAnswer}
+            tryAnswer={tryAnswer}
+            unSetAnswer={unSetAnswer}
+            unTryAnswer={unTryAnswer}
             size={cardSize} 
         /> 
     ); 

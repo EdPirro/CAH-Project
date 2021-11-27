@@ -16,7 +16,7 @@ module.exports = class Player {
         const nr = [];
         answer.map(e => nr.push(e.pos));
         this.replace = nr;
-        this.status = "ready"
+        this.status = "ready";
     }
 
     clearAnswer() {

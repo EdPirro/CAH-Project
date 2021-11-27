@@ -3,12 +3,13 @@ import Question from "./Question";
 import Menu from "./Menu";
 import Hand from "./Hand";
 
-function PlayerView(props) {
+ 
+function PlayerView({ question, setAns, tryAns, time, hand, tryAnswer, unTryAnswer, setAnswer, unSetAnswer }) {
     return (
         <>
-            <Question card={props.question} setAns={props.setAns} tryAns={props.tryAns} divClass="playerQ"/>
-            <Menu time={props.time} pos="right"/>
-            <Hand cards={props.hand} tryAnswer={props.tryAnswer} setAnswer={props.setAnswer} />
+            <Question card={question} setAns={setAns} tryAns={tryAns} divClass="playerQ"/>
+            <Menu time={time} pos="right"/>
+            <Hand cards={hand} setAnswer={setAnswer} unSetAnswer={unSetAnswer} tryAnswer={tryAnswer} unTryAnswer={unTryAnswer} />
         </>
     );
 }

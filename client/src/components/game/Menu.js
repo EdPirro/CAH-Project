@@ -1,31 +1,35 @@
 import React from "react";
 
 function Menu(props) {
-    const [hidden, setHidden] = React.useState(true);
+    // const [hidden, setHidden] = React.useState(true);
 
-    React.useEffect(() => {
-        window.addEventListener("keydown", keyDownHandle);
-        window.addEventListener("keyup", keyUpHandle);
+    // React.useEffect(() => {
+    //     window.addEventListener("keydown", keyDownHandle);
+    //     window.addEventListener("keyup", keyUpHandle);
 
-        return(() => {
-            window.removeEventListener("keydown", keyDownHandle)
-            window.removeEventListener("keyup", keyUpHandle);
-        })
-    }, []);
+    //     return(() => {
+    //         window.removeEventListener("keydown", keyDownHandle)
+    //         window.removeEventListener("keyup", keyUpHandle);
+    //     })
+    // }, []);
 
-    const keyDownHandle = e => {
-        if(e.defaultPrevented) return;
-        if(e.key === "i") setHidden(false);
-    }
+    // const keyDownHandle = e => {
+    //     if(e.defaultPrevented) return;
+    //     if(e.key === "i") setHidden(false);
+    // }
 
-    const keyUpHandle = e => {
-        if(e.defaultPrevented) return;
-        if(e.key === "i") setHidden(true);
-    }
+    // const keyUpHandle = e => {
+    //     if(e.defaultPrevented) return;
+    //     if(e.key === "i") setHidden(true);
+    // }
 
     const style = props.pos === "right" ? {right: "0px"} : {left: "0px"}
 
     return (
+        <div className="mHid" style={style} > {props.time} </div>
+    );
+
+    /* return (
         hidden ?
             <div className={`mHid ${props.time < 10 && "mAnimate"}`} style={style} onClick={() => setHidden(false)} >
                 I
@@ -54,7 +58,7 @@ function Menu(props) {
                 <div >{props.time}s</div>
             </div>}
         </div>
-    )
+    ) */
 }
 
 export default Menu;

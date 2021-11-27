@@ -5,6 +5,8 @@ const PlayersPickPhase = require("./GameElements/GamePhases/PlayersPickPhase");
 const CzarPicksPhase = require("./GameElements/GamePhases/CzarPicksPhase");
 const AwardPointsPhase = require("./GameElements/GamePhases/AwardPointsPhase");
 
+const MIN_PLAYERS = 2;
+
 const { getIO } = require("../util/utils");
 
 module.exports = class GameManager {
@@ -58,6 +60,7 @@ module.exports = class GameManager {
     }
 
     joinSpectators() {
+        console.log("Spectators joined the game");
         const spectating_cp = [...this.spectating];
         this.spectating = [];
         for(let player of spectating_cp) {
@@ -124,8 +127,8 @@ module.exports = class GameManager {
             remove any submitted answers that might belong to this player
         */
         socket.on("disconnect", () => {
-            this.freePos.push(pos);
 
+            this.freePos.push(pos);
             const playerName = this.playerList[pos]?.name ?? "spectating player";
             console.log(`${playerName} disconnected`);
 
@@ -139,14 +142,19 @@ module.exports = class GameManager {
 
 
         socket.on("send-answer", answer => {
+
             const player = this.playerList[pos];
+            console.log(`Received player ${player.name} answer: ${answer.map(el => el.card.content).join(" | ")}`);
             player.setAnswer(answer);
+            console.log(`Sending player ${player.name} status to czar ${this.czar}`);
             this.playerList[this.czar].socket.emit("set-player-status", { pos, status: player.status });
         });
 
         socket.on("clear-answer", () => {
             const player = this.playerList[pos];
+            console.log(`Clearing player ${player.name} answer`);
             player.clearAnswer();
+            console.log(`Sending player ${player.name} status to czar ${this.czar}`);
             this.playerList[this.czar].socket.emit("set-player-status", { pos, status: player.status });
         });
     }
@@ -164,21 +172,29 @@ module.exports = class GameManager {
 
     setupIO() {
 
-        this.io.on("connect", (socket, playerName) => {
+        this.io.on("connect", (socket) => {
+
+            const playerName = socket.handshake.query.name;
+            console.log(`${playerName} connected...`);
+
             const player = new Player(socket, playerName);
             // {socket, hand: [], replace: "all", points: 0, status: "waiting"};
             const pos = this.getPos();
             this.setupListeners(socket, pos);
 
             if(this.gamePhase.id === "waiting") {
+                console.log(`${playerName} joined the game`);
+
                 this.playerList[pos] = player;
 
-                if(this.countPlayers() >= 4) {
+                if(this.countPlayers() >= MIN_PLAYERS) {
                     this.gamePhase.next();
                 }
                 else this.gamePhase.do();
 
             } else {
+                console.log(`${playerName} joined the spectators`);
+
                 player.holdPos = pos;
                 player.status = "spectating";
                 this.spectating.push(player);

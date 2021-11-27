@@ -3,14 +3,14 @@ import PlayerView from "./PlayerView";
 import CzarView from "./CzarView";
 import io from "socket.io-client";
 
-function Game(props) {
+function Game({ url, gameOver }) {
     const [loading, setLoading] = React.useState(true);
     const [hand, setHand] = React.useState(null);
     const [question, setQuestion] = React.useState(null);
     const [spectating, setSpectating] = React.useState(null);
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
-    const [time, setTime] = React.useState(200); // time (s) to play
+    const [time, setTime] = React.useState(120); // time (s) to play
     const [czar, setCzar] = React.useState(false); // wether the player is or not the czar
     const [socket, setSocket] = React.useState(null); // socket used to comunnicate with server
     const [neededPlayers, setNeededPlayers] = React.useState(4); // if the game is waiting for more players
@@ -27,6 +27,9 @@ function Game(props) {
             setNeededPlayers(0);
             setQuestion(msg.question);
             setHand(msg.hand);
+            setSetAns([]);
+            setAnsAmount.current = 0;
+            setTryAns(null);
         });
 
         socket.on("spectating", () => {
@@ -41,9 +44,9 @@ function Game(props) {
     }, [socket]);
 
     // setup a interval to deduct a second of the timer every 1000ms
-    React.useEffect(() => {inter.current = setInterval(() => setTime(t => t - 1), 1000)}, []);
+    React.useEffect(() => { inter.current = setInterval(() => setTime(t => t - 1), 1000) }, []);
 
-    React.useEffect(() => {setSocket(io(props.url))}, [props.url]);
+    React.useEffect(() => { setSocket(io(url, { query: `name=${"SAMPLE NAME"}` })) }, [url]);
 
     React.useEffect(() => {
         if(socket) {
@@ -59,23 +62,21 @@ function Game(props) {
         if(question && setAnsAmount.current === question.nAns) socket.emit("send-answer", setAns);
     }, [setAns, socket, question]);
 
-    if(!time) {
-        clearInterval(inter.current);
-    };
+    React.useEffect(() => {
+        if(!time && inter.current) clearInterval(inter.current);
+    }, [time]);
 
-    const disconnect = () => {
+    const disconnect = React.useMemo(() => () => {
         socket.disconnect();
-        props.gameOver();
-    }
+        gameOver();
+    }, [gameOver, socket]);
 
-    const revealAnswer = answer => {
-        const newAns = [];
-        for(const elem of answer) newAns.push(elem);
-        setSetAns(newAns);
-    }
+    const revealAnswer = React.useMemo(() => answers => {
+        setSetAns([...answers]);
+    }, []);
 
     // Functions to add or remove a card to/from tryAns
-    const setAnswer = cardElem => {
+    const setAnswer = React.useMemo(() =>  cardElem => {
         if(setAnsAmount.current === question.nAns) return;
         const newAns = [];
         let set = false;
@@ -91,9 +92,9 @@ function Game(props) {
             setSetAns(newAns);
             return true;
         };
-    }
+    }, [setAns, question]);
 
-    const unSetAnswer = cardElem => {
+    const unSetAnswer = React.useMemo(() => cardElem => {
         if(setAnsAmount.current === question.nAns) socket.emit("remove-answer");
         const newAns = [];
         let taken = false;
@@ -104,23 +105,21 @@ function Game(props) {
                 taken = true;
             }
         }
-        if(taken) setSetAns(newAns);
-        setAnsAmount.current--;
-    }
+        if(taken) {
+            setSetAns(newAns);
+            setAnsAmount.current--;
+        }
+    }, [setAns, socket, question]);
 
     // Functions to add or remove a question to/from setAns
-    const tryAnswer = cardElem => {
-        if((() => {
-            for(let i = 0; i < question.nAns; i++) if(!setAns[i]) return false;
-            return true;
-        })()) return;
-
+    const tryAnswer = React.useMemo(() => cardElem => {
+        if(setAnsAmount.current === question.nAns) return;
         setTryAns(cardElem);
-    };
+    }, [question]);
 
-    const unTryAnswer = () => {
+    const unTryAnswer = React.useMemo(() => () => {
         setTryAns(null);
-    }
+    }, []);
     
     return (
         <>
@@ -151,8 +150,10 @@ function Game(props) {
                                     tryAns={tryAns}
                                     time={time}
                                     hand={hand}
-                                    tryAnswer={[tryAnswer, unTryAnswer]}
-                                    setAnswer={[setAnswer, unSetAnswer]}
+                                    tryAnswer={tryAnswer}
+                                    unTryAnswer={unTryAnswer}
+                                    setAnswer={setAnswer}
+                                    unSetAnswer={unSetAnswer}
                                 />
                 }
             </div>

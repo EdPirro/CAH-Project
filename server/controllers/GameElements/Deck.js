@@ -57,7 +57,7 @@ module.exports = class Deck {
             }
         }
         else {
-            for(elem of player.replace) {
+            for(let elem of player.replace) {
                 player.hand[elem] = { pos: elem, card: this.answers[this.curAnswerPos++] };
             }
         }

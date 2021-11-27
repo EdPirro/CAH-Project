@@ -7,6 +7,7 @@ module.exports = class WaitingPhase {
 
     next() {
         if(!this.context) return;
+        console.log("Waiting phase ended!");
         this.context.setState("playersPick");
     }
 
@@ -18,6 +19,7 @@ module.exports = class WaitingPhase {
 
     do() {
         if(!this.context) return;
+        console.log("New player joined!");
         this.context.io.emit("waiting", { for: 4 - this.context.countPlayers() });
     }
 }
