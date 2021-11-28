@@ -5,9 +5,9 @@ module.exports = class PlayersPickPhase {
         this.id = "playersPick";
     }
 
-    next() {
+    next(reason) {
         if(!this.context) return;
-        console.log("Players pick phase ended!");
+        console.log(`${ reason ?? "" } - Players pick phase ended!`);
         this.context.setState("czarPicks");
     }
 
@@ -16,11 +16,12 @@ module.exports = class PlayersPickPhase {
 
         this.context.joinSpectators();
         this.context.deck.drawQuestion();
+        this.context.cntAnswer = 0;
 
         for(let player of (this.context.playerList ?? [])) {
             if(!player) continue;
             this.context.deck.draw(player);
-            player.setUpForNewRound(); // is Czar = false
+            player.setUpForNewRound(); // is Czar = false, status = "choosing"
             console.log(`Drew cards for player ${player.name}, new hand: ${player.hand.map(el => el.card.content).join(" | ")}`);
             player.socket.emit("players-pick-phase", { question: this.context.deck.currentQuestion, hand: player.hand });
         }

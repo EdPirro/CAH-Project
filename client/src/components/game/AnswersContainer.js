@@ -3,7 +3,7 @@ import Answer from "./Answer";
 
 const cardSize = 194;
 
-function AnswersContainer({ nAns, selectedAnswer, playerAnswer }) {
+function AnswersContainer({ nAns, isChosenPlayer, playerAnswers, choosePlayer }) {
 
     const [width, setWidth] = React.useState(0.0);
 
@@ -19,9 +19,8 @@ function AnswersContainer({ nAns, selectedAnswer, playerAnswer }) {
     }, [handleResize]);
 
     const clickHandle = React.useMemo(() => () => {
-        console.log("clicked");
-        // revealAnswer(answer, id);
-    }, []);
+        choosePlayer();
+    }, [choosePlayer]);
 
     const overlap = React.useMemo(() => 
         (width < (nAns * cardSize)) ? 
@@ -33,9 +32,18 @@ function AnswersContainer({ nAns, selectedAnswer, playerAnswer }) {
     const content = React.useMemo(() => {
         const ret = [];
         for(let i = 0; i < nAns; i++)  
-            ret.push(<Answer key={i} pos={i} overlap={overlap} noResize={true} card={playerAnswer?.[i]} size={cardSize}  />); // TODO: FIX PROPS
+            ret.push(
+                <Answer 
+                    key={i} 
+                    pos={i} 
+                    overlap={overlap} 
+                    card={playerAnswers?.[i].card} 
+                    cardElem={playerAnswers[i]} 
+                    size={cardSize}  
+                    cover={!isChosenPlayer}
+            />); // TODO: FIX PROPS
         return ret;
-    }, [nAns, overlap, playerAnswer]);
+    }, [nAns, overlap, playerAnswers]);
 
     return (
         <div className="czarAnsCont scrollbar" onClick={clickHandle}>

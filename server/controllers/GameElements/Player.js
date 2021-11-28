@@ -11,6 +11,10 @@ module.exports = class Player {
         this.currentAnswer = [];
     }
 
+    get answer() {
+        return this.status === "ready" ? this.currentAnswer : [];
+    }
+
     setAnswer(answer) {
         this.currentAnswer = answer;
         const nr = [];
@@ -27,6 +31,7 @@ module.exports = class Player {
 
     setUpForNewRound() {
         this.clearAnswer();
+        this.status = "choosing";
         this.isCzar = false;
     }
 

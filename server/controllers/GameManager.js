@@ -43,6 +43,7 @@ module.exports = class GameManager {
         this.czar = -1;
         this.spectating = [];
         this.gamePhase = this.states.waiting;
+        this.cntAnswers = 0;
         this.setupIO();
     }
 
@@ -59,6 +60,11 @@ module.exports = class GameManager {
         this.gamePhase.startUp();
     }
 
+    reallocatePlayers() { // playerList = [Player, null, Player, Player, null, null, Player] freePos = [5, 1, 4]
+        this.playerList = this.playerList.map(el => el);
+        this.freePos = [];
+    }
+
     joinSpectators() {
         console.log("Spectators joined the game");
         const spectating_cp = [...this.spectating];
@@ -66,6 +72,8 @@ module.exports = class GameManager {
         for(let player of spectating_cp) {
             this.playerList[player.holdPos] = player;
         }
+
+        this.reallocatePlayers();
     }
 
     nextCzar() {
@@ -95,6 +103,16 @@ module.exports = class GameManager {
         if(!this.interval) return;
         clearInterval(this.interval);
         this.interval = null;
+    }
+
+    getPlayersAnswers() {
+        const playersAnswers = {};
+        for(let i = 0; i < this.playerList.length; i++) {
+            const curAns = this.playerList[i]?.answer;
+            if(!curAns) continue;
+            playersAnswers[i] = curAns;
+        }
+        return playersAnswers;
     }
 
     /**
@@ -144,31 +162,25 @@ module.exports = class GameManager {
         socket.on("send-answer", answer => {
 
             const player = this.playerList[pos];
-            console.log(`Received player ${player.name} answer: ${answer.map(el => el.card.content).join(" | ")}`);
+            console.log(`Received player ${player.name} answer`);
             player.setAnswer(answer);
-            console.log(`Sending player ${player.name} status to czar ${this.czar}`);
-            this.playerList[this.czar].socket.emit("set-player-status", { pos, status: player.status });
+            this.cntAnswers++;
+            this.playerList[this.czar].socket.emit("set-player-ans-cnt", this.cntAnswers);
+            if(this.cntAnswers === this.countPlayers()) {
+                this.gamePhase.next("All players locked-in");
+            }
         });
 
         socket.on("clear-answer", () => {
             const player = this.playerList[pos];
             console.log(`Clearing player ${player.name} answer`);
             player.clearAnswer();
+            this.cntAnswers--;
             console.log(`Sending player ${player.name} status to czar ${this.czar}`);
-            this.playerList[this.czar].socket.emit("set-player-status", { pos, status: player.status });
+            this.playerList[this.czar].socket.emit("set-player-ans-cnt", this.cntAnswers);
         });
-    }
 
-    // async beginRound() {
-    //     this.gamePhase = "playersPick";
-    //     const question = this.cards[0][this.cardCount[0]++];
-    //     for(const player of this.playerList) {
-    //         this.draw(player);
-    //         player.socket.emit("new-round", {question, hand: player.hand});
-    //     }
-    //     while(this.countPlayers() >= 4 && !this.playerList[this.czar]) this.cazar = (this.czar + 1) % this.playerList.length;
-    //     this.io.to(`${this.playerList[this.czar].socket.id}`).emit("set-czar", {content: "You are the czar"});
-    // }
+    }
 
     setupIO() {
 

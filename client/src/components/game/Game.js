@@ -14,6 +14,7 @@ function Game({ url, gameOver }) {
     const [czar, setCzar] = React.useState(false); // wether the player is or not the czar
     const [socket, setSocket] = React.useState(null); // socket used to comunnicate with server
     const [neededPlayers, setNeededPlayers] = React.useState(4); // if the game is waiting for more players
+    const [czarPicksPhase, setCzarPicksPhase] = React.useState(false); // if the czar is picking an answer
     const inter = React.useRef(null);
     const setAnsAmount = React.useRef(0);
 
@@ -30,6 +31,7 @@ function Game({ url, gameOver }) {
             setSetAns([]);
             setAnsAmount.current = 0;
             setTryAns(null);
+            setCzarPicksPhase(false);
         });
 
         socket.on("spectating", () => {
@@ -38,7 +40,11 @@ function Game({ url, gameOver }) {
 
         socket.on("set-czar", () => {
             setCzar(true);
-        }) 
+        });
+
+        socket.on('czar-picks-phase', () => {
+            setCzarPicksPhase(true);
+        }); 
 
 
     }, [socket]);
@@ -141,9 +147,12 @@ function Game({ url, gameOver }) {
                                     setAns={setAns}
                                     time={time}
                                     revealAnswer={revealAnswer}
+                                    czarPicksPhase={czarPicksPhase}
+                                    setAnswer={setSetAns}
                                 />
                                 :
                                 <PlayerView 
+                                    czarPicksPhase={czarPicksPhase}
                                     socket={socket}
                                     question={question}
                                     setAns={setAns}

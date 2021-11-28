@@ -6,7 +6,7 @@ import React from "react";
  * A answer card will always have a fixed size (174 x 214) and will overlap each other to fit on screen.
  * Upon hovering it will increase its size and set its content to the Question card's next blank.
  */
-function Answer({ pos, overlap, tryAnswer, unTryAnswer, setAnswer, unSetAnswer, noResize, card, cardElem, size, hidden }) {
+function Answer({ pos, overlap, tryAnswer, unTryAnswer, setAnswer, unSetAnswer, card, cardElem, size, hidden, cover }) {
     const [clicked, setClicked] = React.useState(false);
     const ref = React.useRef(); // ref to get div's attributes
 
@@ -74,7 +74,7 @@ function Answer({ pos, overlap, tryAnswer, unTryAnswer, setAnswer, unSetAnswer, 
                 CAH
             </div>
             :
-            Boolean(clicked || !card?.content) ? 
+            Boolean(clicked || !card?.content || cover) ? 
                 <div className="answer cover" onClick={handleUnClick} style={style} ref={ref}>
                     {card?.content ?? "CAH"}
                 </div>
