@@ -16,22 +16,22 @@ module.exports = class PlayersPickPhase {
 
         this.context.joinSpectators();
         this.context.deck.drawQuestion();
-        this.context.cntAnswer = 0;
+        this.context.cntAnswers = 0;
+        this.context.winner = null;
 
         for(let player of (this.context.playerList ?? [])) {
             if(!player) continue;
             this.context.deck.draw(player);
             player.setUpForNewRound(); // is Czar = false, status = "choosing"
-            console.log(`Drew cards for player ${player.name}, new hand: ${player.hand.map(el => el.card.content).join(" | ")}`);
+            console.log(`Drew cards for player ${player.name}`);
             player.socket.emit("players-pick-phase", { question: this.context.deck.currentQuestion, hand: player.hand });
         }
 
         const czar = this.context.nextCzar();
-        czar.isCzar = true;
-        console.log(`Czar set to ${czar.name}`);
+        console.log(`Czar set to ${czar.name}, ${this.context.czar}`);
         czar.socket.emit("set-czar", { content: "You are the czar" });
 
-        this.context.startOrRestartPhaseTimer();
+        this.context.startPhaseTimer();
     }
 
     do() { return; }

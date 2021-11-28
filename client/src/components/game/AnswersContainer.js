@@ -19,7 +19,7 @@ function AnswersContainer({ nAns, isChosenPlayer, playerAnswers, choosePlayer })
     }, [handleResize]);
 
     const clickHandle = React.useMemo(() => () => {
-        choosePlayer();
+        if(choosePlayer) choosePlayer();
     }, [choosePlayer]);
 
     const overlap = React.useMemo(() => 
@@ -37,13 +37,13 @@ function AnswersContainer({ nAns, isChosenPlayer, playerAnswers, choosePlayer })
                     key={i} 
                     pos={i} 
                     overlap={overlap} 
-                    card={playerAnswers?.[i].card} 
-                    cardElem={playerAnswers[i]} 
+                    card={playerAnswers?.[i]?.card} 
+                    cardElem={playerAnswers?.[i]} 
                     size={cardSize}  
                     cover={!isChosenPlayer}
             />); // TODO: FIX PROPS
         return ret;
-    }, [nAns, overlap, playerAnswers]);
+    }, [nAns, overlap, playerAnswers, isChosenPlayer]);
 
     return (
         <div className="czarAnsCont scrollbar" onClick={clickHandle}>

@@ -1,10 +1,9 @@
 import React from "react";
 import Question from "./Question";
-import Menu from "./Menu";
 import AnswersContainer from "./AnswersContainer";
 
 
-function CzarView({ socket, question, time, czarPicksPhase, setAns, setAnswer }) {
+function CzarView({ socket, question, gameOver, czarPicksPhase, setAns, setAnswer }) {
     const [chosenPlayer, setChosenPlayer] = React.useState(null); // select the player chosen by the czar
     const [cntPlayersAns, setCntPlayersAns] = React.useState(0); // count the number of players that have answered
     const [playersAnswers, setPlayersAnswers] = React.useState({}); // the answers of each player
@@ -32,31 +31,45 @@ function CzarView({ socket, question, time, czarPicksPhase, setAns, setAnswer })
     //     setChosenPlayer(id);
     // }
 
+    const handleClick = React.useMemo(() => () => {
+        if((chosenPlayer ?? null) === null || gameOver) return;
+        socket.emit("czar-pick", chosenPlayer);
+        setChosenPlayer(null);
+    }, [socket, chosenPlayer, gameOver]);
+
     const content = React.useMemo(() => 
-        czarPicksPhase ? 
-            Object.keys(playersAnswers).map((player, id) => 
-                <AnswersContainer 
-                    key={id} 
-                    playerId={player} 
-                    nAns={question.nAns} 
-                    playerAnswers={playersAnswers[player]} 
-                    isChosenPlayer={chosenPlayer === player}
-                    choosePlayer={() => {
-                        setChosenPlayer(player)
-                        setAnswer(playersAnswers[player]);
-                    }}
-                />)
-            : [...Array(cntPlayersAns).keys()].map(id => <AnswersContainer key={id} playerId={id} nAns={question.nAns} />) 
-    , [question, cntPlayersAns, playersAnswers, chosenPlayer, czarPicksPhase]);
+        gameOver ?
+            "Awarding points..."
+            : czarPicksPhase ? 
+                Object.keys(playersAnswers).map((player, id) => 
+                    <AnswersContainer 
+                        key={id}
+                        nAns={question.nAns} 
+                        playerAnswers={playersAnswers[player]} 
+                        isChosenPlayer={chosenPlayer === player}
+                        choosePlayer={() => {
+                            setChosenPlayer(player);
+                            setAnswer(playersAnswers[player]);
+                        }}
+                    />)
+                : [...Array(cntPlayersAns).keys()].map(id => <AnswersContainer key={id} playerId={id} nAns={question.nAns} />) 
+    , [question, cntPlayersAns, playersAnswers, chosenPlayer, czarPicksPhase, setAnswer, gameOver]);
 
 
     return (
         <>
             <div className="czarQCont">
-                <Question card={question} setAns={setAns} tryAns={tryAns} divClass="czarQ" />
-                <div className="czarBut">Select</div>
+                <Question card={question} setAns={setAns} divClass="czarQ" />
+                <div 
+                    hidden={gameOver}
+                    className={`czarBut ${(chosenPlayer ?? null) === null ? "disabled" : ""}`}
+                    role="button" 
+                    aria-disabled={(chosenPlayer ?? null) === null} 
+                    onClick={handleClick} 
+                >
+                    Select
+                </div>
             </div>
-            <Menu time={time} pos="left" ></Menu>
             <div className="czarSubAns" >
                 {content}
             </div>

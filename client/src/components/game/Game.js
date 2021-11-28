@@ -1,21 +1,26 @@
 import React from "react";
 import PlayerView from "./PlayerView";
 import CzarView from "./CzarView";
+import Menu from "./Menu";
 import io from "socket.io-client";
 
-function Game({ url, gameOver }) {
+
+// Could maybe use some refactoring
+function Game({ url }) {
     const [loading, setLoading] = React.useState(true);
     const [hand, setHand] = React.useState(null);
     const [question, setQuestion] = React.useState(null);
     const [spectating, setSpectating] = React.useState(null);
     const [setAns, setSetAns] = React.useState([]); // set(ted) answers
     const [tryAns, setTryAns] = React.useState(null); // answers being tried but not set
-    const [time, setTime] = React.useState(120); // time (s) to play
     const [czar, setCzar] = React.useState(false); // wether the player is or not the czar
     const [socket, setSocket] = React.useState(null); // socket used to comunnicate with server
     const [neededPlayers, setNeededPlayers] = React.useState(4); // if the game is waiting for more players
     const [czarPicksPhase, setCzarPicksPhase] = React.useState(false); // if the czar is picking an answer
-    const inter = React.useRef(null);
+    const [gameOver, setGameOver] = React.useState(false); // if the game is over
+    const [gameOverMessage, setGameOverMessage] = React.useState("");
+    const [playerPoints, setPlayerPoints] = React.useState(0);
+    const [currentTime, setCurrentTime] = React.useState(null); // current time (s)
     const setAnsAmount = React.useRef(0);
 
     const setUpSocket = React.useMemo(() => () => {
@@ -25,14 +30,21 @@ function Game({ url, gameOver }) {
         });
 
         socket.on("players-pick-phase", msg => {
-            setNeededPlayers(0);
+            setGameOver(false);
+            setCzarPicksPhase(false);
             setQuestion(msg.question);
             setHand(msg.hand);
             setSetAns([]);
             setAnsAmount.current = 0;
             setTryAns(null);
+            setCzar(false);
+            setNeededPlayers(0);
             setCzarPicksPhase(false);
         });
+        
+        socket.on('czar-picks-phase', () => {
+            setCzarPicksPhase(true);
+        }); 
 
         socket.on("spectating", () => {
             setSpectating(true);
@@ -42,15 +54,17 @@ function Game({ url, gameOver }) {
             setCzar(true);
         });
 
-        socket.on('czar-picks-phase', () => {
-            setCzarPicksPhase(true);
-        }); 
+        socket.on("timer", time => {
+            setCurrentTime(time);
+        });
 
+        socket.on("game-over", msg => {
+            setGameOver(true);
+            setGameOverMessage(msg.message);
+            setPlayerPoints(msg.points);
+        });
 
     }, [socket]);
-
-    // setup a interval to deduct a second of the timer every 1000ms
-    React.useEffect(() => { inter.current = setInterval(() => setTime(t => t - 1), 1000) }, []);
 
     React.useEffect(() => { setSocket(io(url, { query: `name=${"SAMPLE NAME"}` })) }, [url]);
 
@@ -68,56 +82,37 @@ function Game({ url, gameOver }) {
         if(question && setAnsAmount.current === question.nAns) socket.emit("send-answer", setAns);
     }, [setAns, socket, question]);
 
-    React.useEffect(() => {
-        if(!time && inter.current) clearInterval(inter.current);
-    }, [time]);
+    // const disconnect = React.useMemo(() => () => {
+    //     socket.disconnect();
+    //     gameOver();
+    // }, [gameOver, socket]);
 
-    const disconnect = React.useMemo(() => () => {
-        socket.disconnect();
-        gameOver();
-    }, [gameOver, socket]);
-
-    const revealAnswer = React.useMemo(() => answers => {
-        setSetAns([...answers]);
-    }, []);
-
-    // Functions to add or remove a card to/from tryAns
+    // Functions to add or remove a card to/from setAns
     const setAnswer = React.useMemo(() =>  cardElem => {
-        if(setAnsAmount.current === question.nAns) return;
-        const newAns = [];
-        let set = false;
-        for(let i = 0; i < question.nAns; i++) {
-            newAns[i] = setAns[i];
-            if(!set && !setAns[i]) {
-                newAns[i] = cardElem;
-                set = true;
-            }
-        }
-        if(set) {
+        if(setAnsAmount.current >= question.nAns) return false;
+        setSetAns(prev => {
+            let firstUnset = setAns.findIndex(ans => !ans);
+            if(firstUnset === -1) firstUnset = setAns.length;
+            prev[firstUnset] = cardElem;
             setAnsAmount.current++;
-            setSetAns(newAns);
-            return true;
-        };
+            return [...prev];
+        });
+        return true;
     }, [setAns, question]);
 
     const unSetAnswer = React.useMemo(() => cardElem => {
-        if(setAnsAmount.current === question.nAns) socket.emit("remove-answer");
-        const newAns = [];
-        let taken = false;
-        for(let i = 0; i < question.nAns; i++) {
-            newAns[i] = setAns[i];
-            if(!taken && setAns[i] && setAns[i].card.content === cardElem.card.content) {
-                newAns[i] = undefined;
-                taken = true;
-            }
-        }
-        if(taken) {
-            setSetAns(newAns);
+        if(!setAnsAmount.current) return false;
+        if(setAnsAmount.current >= question.nAns) socket.emit("clear-answer");
+        setSetAns(prev => {
+            const cardIndex = setAns.findIndex(ans => ans.card.content === cardElem.card.content);
+            prev[cardIndex] = undefined;
             setAnsAmount.current--;
-        }
+            return [...prev];
+        });
+        return true;
     }, [setAns, socket, question]);
 
-    // Functions to add or remove a question to/from setAns
+    // Functions to add or remove a question to/from tryAns
     const tryAnswer = React.useMemo(() => cardElem => {
         if(setAnsAmount.current === question.nAns) return;
         setTryAns(cardElem);
@@ -140,30 +135,36 @@ function Game({ url, gameOver }) {
                         loading ? 
                             <> Loading... </>
                             : 
-                            czar ? 
-                                <CzarView 
-                                    socket={socket}
-                                    question={question}
-                                    setAns={setAns}
-                                    time={time}
-                                    revealAnswer={revealAnswer}
-                                    czarPicksPhase={czarPicksPhase}
-                                    setAnswer={setSetAns}
-                                />
-                                :
-                                <PlayerView 
-                                    czarPicksPhase={czarPicksPhase}
-                                    socket={socket}
-                                    question={question}
-                                    setAns={setAns}
-                                    tryAns={tryAns}
-                                    time={time}
-                                    hand={hand}
-                                    tryAnswer={tryAnswer}
-                                    unTryAnswer={unTryAnswer}
-                                    setAnswer={setAnswer}
-                                    unSetAnswer={unSetAnswer}
-                                />
+                            <>
+                                { 
+                                    czar ? 
+                                        <CzarView 
+                                            socket={socket}
+                                            question={question}
+                                            setAns={setAns}
+                                            czarPicksPhase={czarPicksPhase}
+                                            setAnswer={setSetAns}
+                                            gameOver={gameOver}
+                                        />
+                                        :
+                                        <PlayerView 
+                                            czarPicksPhase={czarPicksPhase}
+                                            socket={socket}
+                                            question={question}
+                                            setAns={setAns}
+                                            tryAns={tryAns}
+                                            hand={hand}
+                                            tryAnswer={tryAnswer}
+                                            unTryAnswer={unTryAnswer}
+                                            setAnswer={setAnswer}
+                                            unSetAnswer={unSetAnswer}
+                                            gameOver={gameOver}
+                                            gameOverMessage={gameOverMessage}
+                                        />
+                                }
+                                <Menu title="Time" value={currentTime} pos={czar ? "left": "right"} ></Menu>
+                                <Menu title="Points" value={playerPoints} pos={czar ? "left": "right"} offset="calc(15vmin + 10px)" ></Menu>
+                            </>
                 }
             </div>
         </>

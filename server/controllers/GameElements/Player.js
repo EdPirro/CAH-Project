@@ -12,7 +12,7 @@ module.exports = class Player {
     }
 
     get answer() {
-        return this.status === "ready" ? this.currentAnswer : [];
+        return this.status === "ready" ? this.currentAnswer : null;
     }
 
     setAnswer(answer) {

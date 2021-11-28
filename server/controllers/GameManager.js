@@ -5,7 +5,7 @@ const PlayersPickPhase = require("./GameElements/GamePhases/PlayersPickPhase");
 const CzarPicksPhase = require("./GameElements/GamePhases/CzarPicksPhase");
 const AwardPointsPhase = require("./GameElements/GamePhases/AwardPointsPhase");
 
-const MIN_PLAYERS = 2;
+const MIN_PLAYERS = 3; // debug only, will be 4 in the final version
 
 const { getIO } = require("../util/utils");
 
@@ -22,17 +22,20 @@ module.exports = class GameManager {
     */
 
     constructor(gameRules) {
-
         /* rules */
         this.handSize = 10; // cards
-        this.timePerPhase = 120; // seconds
+        this.timePerPhase = 30; // seconds
+        this.pointsPerWin = 10; // points
         this.maxPlayers = null // not yet implemented
 
+        this.timer = null;
+        this.timeOut = null;
+        this.interval = null;
         this.states = {
             waiting: new WaitingPhase(this),
             playersPick: new PlayersPickPhase(this),
             czarPicks: new CzarPicksPhase(this),
-            awardPoins: new AwardPointsPhase(this)
+            awardPoints: new AwardPointsPhase(this)
         };
         
         this.name = gameRules.name;
@@ -41,18 +44,36 @@ module.exports = class GameManager {
         this.playerList = [];
         this.freePos = [];
         this.czar = -1;
+        this.czarPlayer = null;
         this.spectating = [];
         this.gamePhase = this.states.waiting;
         this.cntAnswers = 0;
         this.setupIO();
+
+        this.handleCzarPick = this.handleCzarPick.bind(this);
     }
 
     get meta() {
         return {
             name: this.name,
             deck: this.deck.selectedDeck,
-            currentPahse: this.gamePhase.id
+            currentPahse: this.gamePhase.id,
+            timeRemainingInCurrentPhase: this.timer
         }
+    }
+
+    handleCzarPick(pickedPlayer) { 
+        let pickedId = pickedPlayer ? Number(pickedPlayer) : null;
+        if(pickedId && isNaN(pickedId)) pickedId = -1;
+        console.log("Czar picked: ", pickedPlayer);
+        const pickedPlayerObj = this.playerList[pickedId]; // pickedPlayer Player instance
+    
+        // pickedPlayerObj = null -> czar picked a player that diconnected
+        // pickedId = null -> czar didn't pick a player
+        // pickedId = -1 -> czar picked a player that doesn't exist (error)
+        // else -> fine
+        this.winner = !pickedPlayerObj ? "disconnected" : pickedId; 
+        this.gamePhase.next();
     }
 
     setState(state) {
@@ -81,36 +102,51 @@ module.exports = class GameManager {
 
         const len = this.playerList.length; // len copy
 
+        // remove listener from previous czar
+        if(this.czarPlayer) this.czarPlayer.socket.off("czar-pick", this.handleCzarPick);
+        if(this.czarPlayer?.isCzar) this.czarPlayer.isCzar = false;
+
         const curCzar = this.czar;
         let nxtCzar = (curCzar + 1) % len;
         while(nxtCzar !== curCzar && !this.playerList[nxtCzar]) nxtCzar = (nxtCzar + 1) % len;
 
+        
         this.czar = nxtCzar;
-        return this.playerList[this.czar];
+        this.czarPlayer = this.playerList[nxtCzar];
+
+        this.czarPlayer.isCzar = true;
+        this.czarPlayer.socket.on("czar-pick", this.handleCzarPick);
+
+        return this.czarPlayer;
     }
 
-    startOrRestartPhaseTimer() {
+    tickTimer(remaining) {
+        this.io.emit("timer", remaining);
+    }
+
+    startPhaseTimer(time=this.timePerPhase) {
         this.stopPhaseTimer();
-        this.interval = setInterval(() => this.gamePhase.next(), this.timePerPhase * 1000);
-    }
-
-    startOrKeepPhaseTimer() {
-        if(this.interval) return;
-        this.startOrRestartPhaseTimer();
+        this.timer = time;
+        this.io.emit("timer", time);
+        this.timeOut = setTimeout(() => this.gamePhase.next(), time * 1000);
+        this.interval = setInterval(() => this.tickTimer(--this.timer), 1000);
     }
 
     stopPhaseTimer() {
-        if(!this.interval) return;
-        clearInterval(this.interval);
+        if(this.interval) clearInterval(this.interval);
+        if(this.timeOut) clearTimeout(this.timeOut);
+        this.timeOut = null;
         this.interval = null;
+        this.timer = null;
     }
 
     getPlayersAnswers() {
         const playersAnswers = {};
         for(let i = 0; i < this.playerList.length; i++) {
+            if(i == this.czar) continue;
             const curAns = this.playerList[i]?.answer;
             if(!curAns) continue;
-            playersAnswers[i] = curAns;
+            playersAnswers[i] = curAns; 
         }
         return playersAnswers;
     }
@@ -160,24 +196,24 @@ module.exports = class GameManager {
 
 
         socket.on("send-answer", answer => {
-
+            if(this.gamePhase.id !== "playersPick") return;
             const player = this.playerList[pos];
-            console.log(`Received player ${player.name} answer`);
             player.setAnswer(answer);
             this.cntAnswers++;
-            this.playerList[this.czar].socket.emit("set-player-ans-cnt", this.cntAnswers);
-            if(this.cntAnswers === this.countPlayers()) {
+            this.czarPlayer.socket.emit("set-player-ans-cnt", this.cntAnswers);
+            console.log(`Received player ${player.name} answer, ${this.cntAnswers}/${this.countPlayers()} answered`);
+            if(this.cntAnswers === this.countPlayers() - 1) {
                 this.gamePhase.next("All players locked-in");
             }
         });
 
         socket.on("clear-answer", () => {
+            if(this.gamePhase.id !== "playersPick") return;
             const player = this.playerList[pos];
-            console.log(`Clearing player ${player.name} answer`);
             player.clearAnswer();
             this.cntAnswers--;
-            console.log(`Sending player ${player.name} status to czar ${this.czar}`);
-            this.playerList[this.czar].socket.emit("set-player-ans-cnt", this.cntAnswers);
+            console.log(`Cleared player ${player.name} answer, ${this.cntAnswers}/${this.countPlayers()} answered`);
+            this.czarPlayer.socket.emit("set-player-ans-cnt", this.cntAnswers);
         });
 
     }

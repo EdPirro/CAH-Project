@@ -47,7 +47,7 @@ function Hand({ cards, tryAnswer, unTryAnswer, setAnswer, unSetAnswer }) {
             tryAnswer={tryAnswer}
             unSetAnswer={unSetAnswer}
             unTryAnswer={unTryAnswer}
-            size={cardSize} 
+            size={cardSize}
         /> 
     ); 
 

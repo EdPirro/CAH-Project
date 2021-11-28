@@ -53,18 +53,20 @@ function Answer({ pos, overlap, tryAnswer, unTryAnswer, setAnswer, unSetAnswer, 
 
     const handleClick = React.useMemo(() => e => {
         if(e.defaultPrevented || !setAnswer) return;
-        setAnswer(cardElem);
-        handleOut();
-        setClicked(true);
-        e.preventDefault();
+        if(setAnswer(cardElem)) {
+            handleOut();
+            setClicked(true);
+            e.preventDefault();
+        }
     }, [setAnswer, cardElem, handleOut]);
 
     const handleUnClick = React.useMemo(() => e => {
         if(e.defaultPrevented || !unSetAnswer) return;
-        unSetAnswer(cardElem);
-        setClicked(false);
-        handleOver();
-        e.preventDefault();
+        if(unSetAnswer(cardElem)) {
+            setClicked(false);
+            handleOver();
+            e.preventDefault();
+        }
     }, [unSetAnswer, cardElem, handleOver]);
 
     // render
@@ -76,7 +78,7 @@ function Answer({ pos, overlap, tryAnswer, unTryAnswer, setAnswer, unSetAnswer, 
             :
             Boolean(clicked || !card?.content || cover) ? 
                 <div className="answer cover" onClick={handleUnClick} style={style} ref={ref}>
-                    {card?.content ?? "CAH"}
+                    CAH
                 </div>
                 :
                 <div className="answer" onMouseOver={handleOver} onMouseOut={handleOut} onClick={handleClick} style={style} ref={ref}>

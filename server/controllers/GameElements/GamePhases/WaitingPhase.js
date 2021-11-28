@@ -19,7 +19,6 @@ module.exports = class WaitingPhase {
 
     do() {
         if(!this.context) return;
-        console.log("New player joined!");
         this.context.io.emit("waiting", { for: 4 - this.context.countPlayers() });
     }
 }
