@@ -4,7 +4,9 @@ import CreateGameDialog from "./components/app/CreateGameDialog";
 import GameList from "./components/app/GameList";
 import "./styles/game.css";
 
-const baseURL = "http://localhost:8000/";
+const baseURL = window.location.origin + "/";
+
+console.log(baseURL);
 
 function App() {
     const [gameName, setGameName] = React.useState(null);
@@ -18,8 +20,9 @@ function App() {
     }, []);
 
     const handleJoin = React.useMemo(() => meta => {
+        if(!playerName) return setError(prev => ({...prev, general: "Excuse me, how may I call you?..." }));
         setGameName(meta.name);
-    }, []);
+    }, [playerName]);
 
     const handlePlayerNameChange = React.useMemo(() => e => {
         const val = e.target.value;

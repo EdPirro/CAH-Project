@@ -1,7 +1,7 @@
 {
-  "name": "cah-react-app-server",
+  "name": "cah-react-app",
   "version": "1.0.0",
-  "description": "backend to the CAH React project",
+  "description": "CAH React project",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EdPirro/CAHReactApp/server"
+    "url": "git+https://github.com/EdPirro/CAHReactApp"
   },
   "keywords": [
     "node.js",
@@ -25,11 +25,8 @@
   },
   "homepage": "https://github.com/EdPirro/CAHReactApp#readme",
   "dependencies": {
-    "crypto": "^1.0.1",
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
-  },
-  "devDependencies": {
+    "socket.io": "^2.3.0",
     "cors": "^2.8.5",
     "nodemon": "^2.0.2"
   }
