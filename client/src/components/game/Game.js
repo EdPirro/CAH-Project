@@ -6,7 +6,7 @@ import io from "socket.io-client";
 
 
 // Could maybe use some refactoring
-function Game({ url }) {
+function Game({ url, playerName }) {
     const [loading, setLoading] = React.useState(true);
     const [hand, setHand] = React.useState(null);
     const [question, setQuestion] = React.useState(null);
@@ -30,16 +30,16 @@ function Game({ url }) {
         });
 
         socket.on("players-pick-phase", msg => {
+            setAnsAmount.current = 0;
             setGameOver(false);
             setCzarPicksPhase(false);
             setQuestion(msg.question);
             setHand(msg.hand);
             setSetAns([]);
-            setAnsAmount.current = 0;
             setTryAns(null);
             setCzar(false);
             setNeededPlayers(0);
-            setCzarPicksPhase(false);
+            setSpectating(false);
         });
         
         socket.on('czar-picks-phase', () => {
@@ -66,7 +66,7 @@ function Game({ url }) {
 
     }, [socket]);
 
-    React.useEffect(() => { setSocket(io(url, { query: `name=${"SAMPLE NAME"}` })) }, [url]);
+    React.useEffect(() => { setSocket(io(url, { query: `name=${playerName}` })) }, [url, playerName]);
 
     React.useEffect(() => {
         if(socket) {
@@ -77,15 +77,6 @@ function Game({ url }) {
     React.useEffect(() => {
         if(question && hand) setLoading(false);
     }, [question, hand]);
-    
-    React.useEffect(() => {
-        if(question && setAnsAmount.current === question.nAns) socket.emit("send-answer", setAns);
-    }, [setAns, socket, question]);
-
-    // const disconnect = React.useMemo(() => () => {
-    //     socket.disconnect();
-    //     gameOver();
-    // }, [gameOver, socket]);
 
     // Functions to add or remove a card to/from setAns
     const setAnswer = React.useMemo(() =>  cardElem => {
@@ -95,10 +86,11 @@ function Game({ url }) {
             if(firstUnset === -1) firstUnset = setAns.length;
             prev[firstUnset] = cardElem;
             setAnsAmount.current++;
+            if(setAnsAmount.current === question?.nAns) socket.emit("send-answer", setAns);
             return [...prev];
         });
         return true;
-    }, [setAns, question]);
+    }, [setAns, question, socket]);
 
     const unSetAnswer = React.useMemo(() => cardElem => {
         if(!setAnsAmount.current) return false;
@@ -124,7 +116,6 @@ function Game({ url }) {
     
     return (
         <>
-            <link rel="stylesheet" type="text/css" href="styles/game.css" />
             <div className="main">
                 {spectating ? 
                     <> spectating... </>

@@ -21,10 +21,10 @@ module.exports = class GameManager {
             "awardPoints"
     */
 
-    constructor(gameRules) {
+    constructor(gameRules, destroyGame) {
         /* rules */
         this.handSize = 10; // cards
-        this.timePerPhase = 30; // seconds
+        this.timePerPhase = 90; // seconds
         this.pointsPerWin = 10; // points
         this.maxPlayers = null // not yet implemented
 
@@ -51,14 +51,16 @@ module.exports = class GameManager {
         this.setupIO();
 
         this.handleCzarPick = this.handleCzarPick.bind(this);
+        this.destroyGame = destroyGame;
     }
 
     get meta() {
         return {
             name: this.name,
             deck: this.deck.selectedDeck,
-            currentPahse: this.gamePhase.id,
-            timeRemainingInCurrentPhase: this.timer
+            pointsPerWin: this.pointsPerWin,
+            timePerPhase: this.timePerPhase,
+            handSize: this.handSize
         }
     }
 
@@ -114,8 +116,10 @@ module.exports = class GameManager {
         this.czar = nxtCzar;
         this.czarPlayer = this.playerList[nxtCzar];
 
-        this.czarPlayer.isCzar = true;
-        this.czarPlayer.socket.on("czar-pick", this.handleCzarPick);
+        if(this.czarPlayer) {
+            this.czarPlayer.isCzar = true;
+            this.czarPlayer.socket.on("czar-pick", this.handleCzarPick);
+        }
 
         return this.czarPlayer;
     }
@@ -158,7 +162,7 @@ module.exports = class GameManager {
      */
     getPos() {
         if(this.freePos.length) return this.freePos.shift();
-        return this.playerList.length;
+        return this.playerList.length + this.spectating.length;
     }
 
     /**
@@ -188,7 +192,10 @@ module.exports = class GameManager {
 
             this.playerList[pos] = null;
 
-            if(this.countPlayers() < 4)
+            const cnt = this.countPlayers();
+            if(!cnt) 
+                this.destroyGame();
+            else if(cnt < 4)
                 this.setState("waiting");
             else if(pos === this.czar) 
                 this.setState("playersPick");

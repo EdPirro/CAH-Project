@@ -6,6 +6,10 @@ module.exports = class GameSlotManager {
         this.games = {};
     }
 
+    listGames() {
+        return Object.keys(this.games).map(el => this.games[el].meta);
+    }
+
     getByName(name) {
         return name ? this.games[name]?.meta : false;
     }

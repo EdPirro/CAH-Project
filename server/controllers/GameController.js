@@ -12,7 +12,7 @@ module.exports = {
 
         if(GameSlotManager.getByName(gameRules.name)) return res.status(400).send("Name already taken, try something more creative...")
             
-        const ng = new GameManager(gameRules);
+        const ng = new GameManager(gameRules, () => GameSlotManager.removeByName(gameRules.name));
         const added = GameSlotManager.addGame(ng);
 
         if(added.error) return res.status(400).send(added.msg);
@@ -28,6 +28,12 @@ module.exports = {
 
         if(!gameMeta) return res.status(400).send("Found no game with given name.");
         return res.send(gameMeta);
+    },
+
+    list(_, res) {
+        // TODO: Search
+        const gameList = GameSlotManager.listGames();
+        return res.send(gameList);
     }
 
 }

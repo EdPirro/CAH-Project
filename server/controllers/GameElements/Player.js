@@ -31,7 +31,6 @@ module.exports = class Player {
 
     setUpForNewRound() {
         this.clearAnswer();
-        this.status = "choosing";
         this.isCzar = false;
     }
 
