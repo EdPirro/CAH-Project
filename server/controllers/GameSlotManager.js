@@ -14,12 +14,12 @@ module.exports = class GameSlotManager {
         return name ? this.games[name]?.meta : false;
     }
 
-    addGame(game) {
+    addGame(encodedName, game) {
 
         if(this.cntGames >= this.maxGames) return { error: true, msg: "Maximum capacity reached" };
-        if(this.getByName(game.name)) return { error: true, msg: "Name already taken, try something more creative..." };
+        if(this.getByName(encodedName)) return { error: true, msg: "Name already taken, try something more creative..." };
 
-        this.games[game.name] = game;
+        this.games[encodedName] = game;
         ++this.cntGames;
         return { error: false, gameMeta: game.meta };
     }

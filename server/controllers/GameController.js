@@ -10,10 +10,12 @@ module.exports = {
         for(let i of GameManager.customizableRules)
             gameRules[i] = req.body[i];
 
-        if(GameSlotManager.getByName(gameRules.name)) return res.status(400).send("Name already taken, try something more creative...")
+        const encodedName = encodeURIComponent(gameRules.name.toString());
+
+        if(GameSlotManager.getByName(encodedName)) return res.status(400).send("Name already taken, try something more creative...")
             
-        const ng = new GameManager(gameRules, () => GameSlotManager.removeByName(gameRules.name));
-        const added = GameSlotManager.addGame(ng);
+        const ng = new GameManager(gameRules, () => GameSlotManager.removeByName(encodedName));
+        const added = GameSlotManager.addGame(encodedName, ng);
 
         if(added.error) return res.status(400).send(added.msg);
 

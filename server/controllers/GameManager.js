@@ -40,7 +40,7 @@ module.exports = class GameManager {
         
         this.name = gameRules.name;
         this.deck = new Deck(gameRules.decks, this.handSize, this.requestAllPlayersDraw);
-        this.io = getIO().of(this.name.toString());
+        this.io = getIO().of(encodeURIComponent(this.name.toString()));
         this.playerList = [];
         this.freePos = [];
         this.czar = -1;

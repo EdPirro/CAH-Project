@@ -33,7 +33,7 @@ function App() {
 
     return (
         Boolean(gameName && playerName) ?
-            <Game url={baseURL + gameName} playerName={playerName} /> 
+            <Game url={`${baseURL}${encodeURIComponent(gameName)}`} playerName={playerName} /> 
             :
             <>
                 <CreateGameDialog 
