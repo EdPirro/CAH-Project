@@ -90,12 +90,12 @@ export default function CreateGameDialog({ show, onClose, baseURL, afterCreateCa
                             <div className="dialog-checkbox-pair">
                                 <input 
                                     type="checkbox" 
-                                    id="standart"
-                                    value="Standart Base Set (uncensored)" 
-                                    checked={selectedDecks["standart"] ?? false} 
-                                    onChange={generateCheckboxHandler("standart")}
+                                    id="standard"
+                                    value="Standard Base Set (uncensored)" 
+                                    checked={selectedDecks["standard"] ?? false} 
+                                    onChange={generateCheckboxHandler("standard")}
                                 />
-                                <label htmlFor="standart">Standart Set (uncensored)</label>
+                                <label htmlFor="standard">Standard Set (uncensored)</label>
                             </div>
                             More to come maybe...
                         </div>

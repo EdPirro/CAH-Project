@@ -5,13 +5,13 @@ const PlayersPickPhase = require("./GameElements/GamePhases/PlayersPickPhase");
 const CzarPicksPhase = require("./GameElements/GamePhases/CzarPicksPhase");
 const AwardPointsPhase = require("./GameElements/GamePhases/AwardPointsPhase");
 
-const MIN_PLAYERS = 3; // debug only, will be 4 in the final version
+const MIN_PLAYERS = 4; // debug only, will be 4 in the final version
 
 const { getIO } = require("../util/utils");
 
 module.exports = class GameManager {
 
-    static customizableRules = ["name", "deck"];
+    static customizableRules = ["name", "decks"];
 
     /* 
         Game Phases:
@@ -39,7 +39,7 @@ module.exports = class GameManager {
         };
         
         this.name = gameRules.name;
-        this.deck = new Deck(gameRules.deck, this.handSize);
+        this.deck = new Deck(gameRules.decks, this.handSize, this.requestAllPlayersDraw);
         this.io = getIO().of(this.name.toString());
         this.playerList = [];
         this.freePos = [];
@@ -57,10 +57,18 @@ module.exports = class GameManager {
     get meta() {
         return {
             name: this.name,
-            deck: this.deck.selectedDeck,
+            decks: this.deck.selectedDecks,
             pointsPerWin: this.pointsPerWin,
             timePerPhase: this.timePerPhase,
             handSize: this.handSize
+        }
+    }
+
+    requestAllPlayersDraw() {
+        for(let i of this.playerList) {
+            if(!i) continue;
+            i.replace = "all"
+            this.deck.draw(i);
         }
     }
 

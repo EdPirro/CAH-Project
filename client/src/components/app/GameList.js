@@ -9,13 +9,13 @@ export default function GameList({ handleJoin, errorOpen, baseURL }) {
     React.useEffect(() => {
         axios.get(`${baseURL}api/game-list`).then(res => {
             setGameList(res.data);
-        }).catch(e => setGameList([]));
+        }).catch(() => setGameList([]));
     }, [baseURL]);
 
     return (
         <div className={`main-menu-games-container ${errorOpen ? "shrunk" : ""}`}>
             <div className="game-list" >
-                {gameList.map(el => <GameListItem meta={el} handleJoin={handleJoin} />)}
+                {gameList.map((el, id) => <GameListItem key={id} meta={el} handleJoin={handleJoin} />)}
             </div>
         </div>
     )

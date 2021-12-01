@@ -4,9 +4,7 @@ import CreateGameDialog from "./components/app/CreateGameDialog";
 import GameList from "./components/app/GameList";
 import "./styles/game.css";
 
-const baseURL = window.location.origin + "/";
-
-console.log(baseURL);
+const baseURL = process.env.REACT_APP_DEV ? "http://localhost:8000/" : window.location.origin + "/";
 
 function App() {
     const [gameName, setGameName] = React.useState(null);

@@ -1,15 +1,18 @@
-adult = require("./Decks/adult");
-clean = require("./Decks/adult"); // TODO: sfw
+const byPack = require("./Cards/byPack.json");
 
 module.exports = class Deck {
 
-    constructor(deck, handSize) {
-        this.selectedDeck = deck ?? "default";
-        const selectedDeck = this.selectedDeck === "adult" ? adult : clean;
-        this.questions = [...selectedDeck[0]];
-        this.answers = [...selectedDeck[1]];
+    constructor(decks, handSize, requestAllPlayersDraw) {
+        this.selectedDecks = decks;
         this.handSize = handSize;
+        this.questions = [];
+        this.answers = []
+        for(let pack of decks) {
+            this.questions = this.questions.concat(byPack[pack].blackCards);
+            this.answers = this.answers.concat(byPack[pack].whiteCards);
+        }
         this.shuffle();
+        this.requestAllPlayersDraw = requestAllPlayersDraw;
     }
 
     /**
@@ -50,6 +53,13 @@ module.exports = class Deck {
      */
     draw(player) {
         // TODO: check if enough, if not shuffle answers and re-draw every player
+        const cnt = player.replace === "all" ? this.handSize : player.replace.length;
+
+        if(this.curAnswerPos + cnt > this.answers.length) {
+            this.shuffle("answers");
+            this.requestAllPlayersDraw();
+            return;
+        }
 
         if(player.replace === "all") {
             for(let a = 0; a < this.handSize; a++ ) {
