@@ -5,7 +5,7 @@ services:
     image: cah:latest
     build: .
     environment:
-      - PORT=80
+      - PORT=$PORT
     ports:
-      - 80:80
+      - $PORT:$PORT
 
