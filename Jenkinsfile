@@ -19,7 +19,7 @@ pipeline {
                     echo PORT=$PROD_PORT >> .env
                 '''
                 sh '''
-                    docker-compose --env-file .env up --build -d
+                    docker compose --env-file .env up --build -d
                 '''
             }
         }
